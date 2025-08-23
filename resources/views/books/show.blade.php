@@ -1,0 +1,101 @@
+@extends('layouts.app')
+
+@section('content')
+<div class="max-w-4xl mx-auto py-6">
+    <div class="bg-white rounded-lg shadow">
+        <div class="p-6">
+            <div class="flex justify-between items-center mb-6">
+                <h1 class="text-2xl font-bold text-gray-900">Detail Buku</h1>
+                <div class="flex space-x-3">
+                    <a href="{{ route('books.edit', $book) }}" class="bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 transition">
+                        <i class="fas fa-edit mr-2"></i>Edit Buku
+                    </a>
+                    <a href="{{ route('books.index') }}" class="bg-gray-600 text-white px-4 py-2 rounded-lg hover:bg-gray-700 transition">
+                        <i class="fas fa-arrow-left mr-2"></i>Kembali ke Daftar
+                    </a>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <div>
+                    <h2 class="text-xl font-bold text-gray-900 mb-4">{{ $book->title }}</h2>
+                    
+                    <div class="space-y-4">
+                        <div>
+                            <span class="text-sm font-medium text-gray-500">Penulis:</span>
+                            <p class="text-lg text-gray-900">{{ $book->author }}</p>
+                        </div>
+                        
+                        <div>
+                            <span class="text-sm font-medium text-gray-500">ISBN:</span>
+                            <p class="text-lg text-gray-900">{{ $book->isbn ?? 'Tidak ada ISBN' }}</p>
+                        </div>
+                        
+                        @if($book->publisher)
+                        <div>
+                            <span class="text-sm font-medium text-gray-500">Penerbit:</span>
+                            <p class="text-lg text-gray-900">{{ $book->publisher }}</p>
+                        </div>
+                        @endif
+                        
+                        <div>
+                            <span class="text-sm font-medium text-gray-500">Kategori:</span>
+                            <p class="text-lg text-gray-900">{{ $book->category ?? 'Tidak ada kategori' }}</p>
+                        </div>
+                        
+                        <div>
+                            <span class="text-sm font-medium text-gray-500">Stok:</span>
+                            <div class="flex items-center space-x-2">
+                                <span class="text-lg font-bold text-gray-900">{{ $book->available_quantity }}/{{ $book->quantity }}</span>
+                                <span class="px-2 py-1 text-xs font-medium rounded-full 
+                                    @if($book->available_quantity > 0) bg-green-100 text-green-800
+                                    @else bg-red-100 text-red-800 @endif">
+                                    {{ $book->available_quantity > 0 ? 'Tersedia' : 'Tidak Tersedia' }}
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div>
+                    <h3 class="text-lg font-medium text-gray-900 mb-4">Riwayat Peminjaman</h3>
+                    
+                    @if($book->borrowings->count() > 0)
+                        <div class="space-y-3">
+                            @foreach($book->borrowings->take(5) as $borrowing)
+                                <div class="p-3 bg-gray-50 rounded-lg">
+                                    <div class="flex justify-between items-start">
+                                        <div>
+                                            <p class="font-medium text-gray-900">{{ $borrowing->member->name }}</p>
+                                            <p class="text-sm text-gray-600">{{ $borrowing->member->member_id }}</p>
+                                            <p class="text-sm text-gray-500">{{ $borrowing->borrow_date->format('d/m/Y') }} - {{ $borrowing->due_date->format('d/m/Y') }}</p>
+                                        </div>
+                                        <span class="px-2 py-1 text-xs font-medium rounded-full 
+                                            @if($borrowing->status === 'borrowed') 
+                                                @if($borrowing->due_date->isPast()) bg-red-100 text-red-800
+                                                @else bg-blue-100 text-blue-800 @endif
+                                            @elseif($borrowing->status === 'returned') bg-green-100 text-green-800
+                                            @else bg-yellow-100 text-yellow-800 @endif">
+                                            @if($borrowing->status === 'borrowed' && $borrowing->due_date->isPast())
+                                                Terlambat
+                                            @else
+                                                {{ $borrowing->status_label }}
+                                            @endif
+                                        </span>
+                                    </div>
+                                </div>
+                            @endforeach
+                        </div>
+                        
+                        @if($book->borrowings->count() > 5)
+                            <p class="text-sm text-gray-500 mt-3">Dan {{ $book->borrowings->count() - 5 }} peminjaman lainnya...</p>
+                        @endif
+                    @else
+                        <p class="text-gray-500">Belum ada riwayat peminjaman</p>
+                    @endif
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+@endsection
