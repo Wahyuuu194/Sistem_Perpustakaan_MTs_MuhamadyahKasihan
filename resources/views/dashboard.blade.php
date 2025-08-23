@@ -84,6 +84,7 @@
                                 <div>
                                     <p class="font-medium text-gray-900">{{ $borrowing->book->title }}</p>
                                     <p class="text-sm text-gray-600">{{ $borrowing->member->name }}</p>
+                                    <p class="text-xs text-gray-500">{{ $borrowing->member->kelas ?? 'Kelas belum ditentukan' }}</p>
                                 </div>
                                 <span class="px-2 py-1 text-xs font-medium rounded-full 
                                     @if($borrowing->status === 'borrowed') bg-blue-100 text-blue-800

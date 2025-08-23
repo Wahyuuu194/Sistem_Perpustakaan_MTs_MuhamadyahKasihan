@@ -27,6 +27,13 @@
                         </div>
                         
                         <div>
+                            <span class="text-sm font-medium text-gray-500">Kelas:</span>
+                            <span class="px-2 py-1 text-sm font-medium rounded-full bg-blue-100 text-blue-800">
+                                {{ $member->kelas ?? 'Belum ditentukan' }}
+                            </span>
+                        </div>
+                        
+                        <div>
                             <span class="text-sm font-medium text-gray-500">Email:</span>
                             <p class="text-lg text-gray-900">{{ $member->email }}</p>
                         </div>
