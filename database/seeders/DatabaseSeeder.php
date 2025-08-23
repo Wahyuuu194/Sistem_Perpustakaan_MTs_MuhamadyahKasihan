@@ -18,34 +18,28 @@ class DatabaseSeeder extends Seeder
                 'title' => 'Laskar Pelangi',
                 'author' => 'Andrea Hirata',
                 'isbn' => '9789793062792',
-                'description' => 'Novel inspiratif tentang perjuangan anak-anak di Belitung',
                 'publisher' => 'Bentang Pustaka',
-                'publication_year' => 2005,
                 'quantity' => 3,
                 'category' => 'Fiksi',
-                'location' => 'Rak A-1'
+                'available_quantity' => 3
             ],
             [
                 'title' => 'Bumi Manusia',
                 'author' => 'Pramoedya Ananta Toer',
                 'isbn' => '9789799731235',
-                'description' => 'Novel sejarah tentang perjuangan kemerdekaan Indonesia',
                 'publisher' => 'Lentera Dipantara',
-                'publication_year' => 1980,
                 'quantity' => 2,
                 'category' => 'Fiksi',
-                'location' => 'Rak A-2'
+                'available_quantity' => 2
             ],
             [
                 'title' => 'Matematika Dasar',
                 'author' => 'Dr. Suharto',
                 'isbn' => '9786021234567',
-                'description' => 'Buku pelajaran matematika untuk tingkat dasar',
                 'publisher' => 'Erlangga',
-                'publication_year' => 2020,
                 'quantity' => 5,
                 'category' => 'Pendidikan',
-                'location' => 'Rak B-1'
+                'available_quantity' => 5
             ]
         ];
 
@@ -89,7 +83,6 @@ class DatabaseSeeder extends Seeder
                 'borrow_date' => '2024-01-15',
                 'due_date' => '2024-01-22',
                 'status' => 'borrowed',
-                'notes' => 'Peminjaman pertama',
                 'created_at' => '2024-01-15 10:00:00',
                 'updated_at' => '2024-01-15 10:00:00'
             ],
@@ -100,7 +93,6 @@ class DatabaseSeeder extends Seeder
                 'due_date' => '2024-01-17',
                 'status' => 'returned',
                 'return_date' => '2024-01-16',
-                'notes' => 'Sudah dikembalikan',
                 'created_at' => '2024-01-10 14:00:00',
                 'updated_at' => '2024-01-16 09:00:00'
             ]
