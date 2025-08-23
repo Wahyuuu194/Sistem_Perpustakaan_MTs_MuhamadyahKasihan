@@ -33,6 +33,26 @@
                 </div>
 
                 <div>
+                    <label for="kelas" class="block text-sm font-medium text-gray-700 mb-2">Kelas *</label>
+                    <select name="kelas" id="kelas" required
+                        class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        <option value="">Pilih Kelas</option>
+                        <option value="7A" {{ old('kelas') == '7A' ? 'selected' : '' }}>7A</option>
+                        <option value="7B" {{ old('kelas') == '7B' ? 'selected' : '' }}>7B</option>
+                        <option value="7C" {{ old('kelas') == '7C' ? 'selected' : '' }}>7C</option>
+                        <option value="8A" {{ old('kelas') == '8A' ? 'selected' : '' }}>8A</option>
+                        <option value="8B" {{ old('kelas') == '8B' ? 'selected' : '' }}>8B</option>
+                        <option value="8C" {{ old('kelas') == '8C' ? 'selected' : '' }}>8C</option>
+                        <option value="9A" {{ old('kelas') == '9A' ? 'selected' : '' }}>9A</option>
+                        <option value="9B" {{ old('kelas') == '9B' ? 'selected' : '' }}>9B</option>
+                        <option value="9C" {{ old('kelas') == '9C' ? 'selected' : '' }}>9C</option>
+                    </select>
+                    @error('kelas')
+                        <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
+                    @enderror
+                </div>
+
+                <div>
                     <label for="email" class="block text-sm font-medium text-gray-700 mb-2">Email *</label>
                     <input type="email" name="email" id="email" value="{{ old('email') }}" required
                         class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">

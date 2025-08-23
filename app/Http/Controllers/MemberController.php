@@ -32,6 +32,7 @@ class MemberController extends Controller
             'birth_date' => 'nullable|date',
             'registration_date' => 'required|date',
             'status' => 'required|in:active,inactive',
+            'kelas' => 'required|in:7A,7B,7C,8A,8B,8C,9A,9B,9C',
         ]);
 
         Member::create($validated);
@@ -62,6 +63,7 @@ class MemberController extends Controller
             'birth_date' => 'nullable|date',
             'registration_date' => 'required|date',
             'status' => 'required|in:active,inactive',
+            'kelas' => 'required|in:7A,7B,7C,8A,8B,8C,9A,9B,9C',
         ]);
 
         $member->update($validated);

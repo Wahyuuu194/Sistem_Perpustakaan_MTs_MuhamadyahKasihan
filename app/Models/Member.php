@@ -15,7 +15,8 @@ class Member extends Model
         'birth_date',
         'member_id',
         'registration_date',
-        'status'
+        'status',
+        'kelas'
     ];
 
     protected $casts = [
