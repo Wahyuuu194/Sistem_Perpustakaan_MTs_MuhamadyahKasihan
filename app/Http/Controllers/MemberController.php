@@ -26,7 +26,6 @@ class MemberController extends Controller
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'member_id' => 'required|string|max:50|unique:members',
-            'email' => 'required|email|unique:members',
             'phone' => 'nullable|string|max:20',
             'address' => 'nullable|string',
             'birth_date' => 'nullable|date',
@@ -57,7 +56,6 @@ class MemberController extends Controller
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'member_id' => 'required|string|max:50|unique:members,member_id,' . $member->id,
-            'email' => 'required|email|unique:members,email,' . $member->id,
             'phone' => 'nullable|string|max:20',
             'address' => 'nullable|string',
             'birth_date' => 'nullable|date',

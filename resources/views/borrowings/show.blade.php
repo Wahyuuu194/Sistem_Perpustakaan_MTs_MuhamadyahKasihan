@@ -37,6 +37,10 @@
                                 @else bg-yellow-100 text-yellow-800 @endif">
                                 @if($borrowing->status === 'borrowed' && $borrowing->due_date->isPast())
                                     Terlambat
+                                @elseif($borrowing->status === 'borrowed')
+                                    Dipinjam
+                                @elseif($borrowing->status === 'returned')
+                                    Dikembalikan
                                 @else
                                     {{ $borrowing->status_label }}
                                 @endif
@@ -92,8 +96,12 @@
                     <div class="p-4 bg-gray-50 rounded-lg">
                         <h4 class="font-medium text-gray-900 text-lg mb-2">{{ $borrowing->member->name }}</h4>
                         <div class="space-y-2 text-sm text-gray-600">
-                            <p><strong>ID Anggota:</strong> {{ $borrowing->member->member_id }}</p>
-                            <p><strong>Email:</strong> {{ $borrowing->member->email }}</p>
+                            <p><strong>NIS/NISN:</strong> {{ $borrowing->member->member_id }}</p>
+                            <p><strong>Kelas:</strong> 
+                                <span class="px-2 py-1 text-xs font-medium rounded-full bg-blue-100 text-blue-800">
+                                    {{ $borrowing->member->kelas ?? 'Belum ditentukan' }}
+                                </span>
+                            </p>
                             @if($borrowing->member->phone)
                                 <p><strong>Telepon:</strong> {{ $borrowing->member->phone }}</p>
                             @endif

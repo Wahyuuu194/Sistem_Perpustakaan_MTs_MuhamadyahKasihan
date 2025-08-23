@@ -22,7 +22,7 @@
                     
                     <div class="space-y-4">
                         <div>
-                            <span class="text-sm font-medium text-gray-500">ID Anggota:</span>
+                            <span class="text-sm font-medium text-gray-500">NIS/NISN:</span>
                             <p class="text-lg text-gray-900">{{ $member->member_id }}</p>
                         </div>
                         
@@ -33,22 +33,10 @@
                             </span>
                         </div>
                         
-                        <div>
-                            <span class="text-sm font-medium text-gray-500">Email:</span>
-                            <p class="text-lg text-gray-900">{{ $member->email }}</p>
-                        </div>
-                        
                         @if($member->phone)
                         <div>
                             <span class="text-sm font-medium text-gray-500">Telepon:</span>
                             <p class="text-lg text-gray-900">{{ $member->phone }}</p>
-                        </div>
-                        @endif
-                        
-                        @if($member->birth_date)
-                        <div>
-                            <span class="text-sm font-medium text-gray-500">Tanggal Lahir:</span>
-                            <p class="text-lg text-gray-900">{{ $member->birth_date->format('d/m/Y') }}</p>
                         </div>
                         @endif
                         
@@ -57,7 +45,7 @@
                             <span class="px-2 py-1 text-sm font-medium rounded-full 
                                 @if($member->status === 'active') bg-green-100 text-green-800
                                 @else bg-red-100 text-red-800 @endif">
-                                {{ ucfirst($member->status) }}
+                                {{ $member->status === 'active' ? 'Aktif' : 'Nonaktif' }}
                             </span>
                         </div>
                         

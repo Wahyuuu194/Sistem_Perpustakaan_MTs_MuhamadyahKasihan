@@ -84,13 +84,23 @@
                                 <div>
                                     <p class="font-medium text-gray-900">{{ $borrowing->book->title }}</p>
                                     <p class="text-sm text-gray-600">{{ $borrowing->member->name }}</p>
-                                    <p class="text-xs text-gray-500">{{ $borrowing->member->kelas ?? 'Kelas belum ditentukan' }}</p>
+                                    <p class="text-xs text-gray-500">{{ $borrowing->member->member_id }} - {{ $borrowing->member->kelas ?? 'Kelas belum ditentukan' }}</p>
                                 </div>
                                 <span class="px-2 py-1 text-xs font-medium rounded-full 
-                                    @if($borrowing->status === 'borrowed') bg-blue-100 text-blue-800
+                                    @if($borrowing->status === 'borrowed') 
+                                        @if($borrowing->due_date->isPast()) bg-red-100 text-red-800
+                                        @else bg-blue-100 text-blue-800 @endif
                                     @elseif($borrowing->status === 'returned') bg-green-100 text-green-800
-                                    @else bg-red-100 text-red-800 @endif">
-                                    {{ $borrowing->status_label }}
+                                    @else bg-yellow-100 text-yellow-800 @endif">
+                                    @if($borrowing->status === 'borrowed' && $borrowing->due_date->isPast())
+                                        Terlambat
+                                    @elseif($borrowing->status === 'borrowed')
+                                        Dipinjam
+                                    @elseif($borrowing->status === 'returned')
+                                        Dikembalikan
+                                    @else
+                                        {{ $borrowing->status_label }}
+                                    @endif
                                 </span>
                             </div>
                         @endforeach

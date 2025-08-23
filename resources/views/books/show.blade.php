@@ -68,6 +68,7 @@
                                         <div>
                                             <p class="font-medium text-gray-900">{{ $borrowing->member->name }}</p>
                                             <p class="text-sm text-gray-600">{{ $borrowing->member->member_id }}</p>
+                                            <p class="text-xs text-gray-500">{{ $borrowing->member->kelas ?? 'Kelas belum ditentukan' }}</p>
                                             <p class="text-sm text-gray-500">{{ $borrowing->borrow_date->format('d/m/Y') }} - {{ $borrowing->due_date->format('d/m/Y') }}</p>
                                         </div>
                                         <span class="px-2 py-1 text-xs font-medium rounded-full 
@@ -78,6 +79,10 @@
                                             @else bg-yellow-100 text-yellow-800 @endif">
                                             @if($borrowing->status === 'borrowed' && $borrowing->due_date->isPast())
                                                 Terlambat
+                                            @elseif($borrowing->status === 'borrowed')
+                                                Dipinjam
+                                            @elseif($borrowing->status === 'returned')
+                                                Dikembalikan
                                             @else
                                                 {{ $borrowing->status_label }}
                                             @endif
