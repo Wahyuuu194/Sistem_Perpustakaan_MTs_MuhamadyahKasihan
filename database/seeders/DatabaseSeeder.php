@@ -57,7 +57,8 @@ class DatabaseSeeder extends Seeder
                 'birth_date' => '1995-03-15',
                 'member_id' => 'M001',
                 'registration_date' => '2024-01-01',
-                'status' => 'active'
+                'status' => 'active',
+                'kelas' => '8A'
             ],
             [
                 'name' => 'Siti Nurhaliza',
@@ -67,7 +68,8 @@ class DatabaseSeeder extends Seeder
                 'birth_date' => '1998-07-22',
                 'member_id' => 'M002',
                 'registration_date' => '2024-01-02',
-                'status' => 'active'
+                'status' => 'active',
+                'kelas' => '9B'
             ]
         ];
 

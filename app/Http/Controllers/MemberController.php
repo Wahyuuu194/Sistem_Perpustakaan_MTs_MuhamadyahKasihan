@@ -26,12 +26,12 @@ class MemberController extends Controller
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'member_id' => 'required|string|max:50|unique:members',
-            'email' => 'required|email|unique:members',
             'phone' => 'nullable|string|max:20',
             'address' => 'nullable|string',
             'birth_date' => 'nullable|date',
             'registration_date' => 'required|date',
             'status' => 'required|in:active,inactive',
+            'kelas' => 'required|in:7A,7B,7C,8A,8B,8C,9A,9B,9C',
         ]);
 
         Member::create($validated);
@@ -56,12 +56,12 @@ class MemberController extends Controller
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'member_id' => 'required|string|max:50|unique:members,member_id,' . $member->id,
-            'email' => 'required|email|unique:members,email,' . $member->id,
             'phone' => 'nullable|string|max:20',
             'address' => 'nullable|string',
             'birth_date' => 'nullable|date',
             'registration_date' => 'required|date',
             'status' => 'required|in:active,inactive',
+            'kelas' => 'required|in:7A,7B,7C,8A,8B,8C,9A,9B,9C',
         ]);
 
         $member->update($validated);

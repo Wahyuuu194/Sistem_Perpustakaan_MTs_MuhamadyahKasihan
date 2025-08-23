@@ -25,7 +25,7 @@
                 </div>
 
                 <div>
-                    <label for="member_id" class="block text-sm font-medium text-gray-700 mb-2">ID Anggota *</label>
+                    <label for="member_id" class="block text-sm font-medium text-gray-700 mb-2">NIS/NISN *</label>
                     <input type="text" name="member_id" id="member_id" value="{{ old('member_id', $member->member_id) }}" required
                         class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
                     @error('member_id')
@@ -34,10 +34,21 @@
                 </div>
 
                 <div>
-                    <label for="email" class="block text-sm font-medium text-gray-700 mb-2">Email *</label>
-                    <input type="email" name="email" id="email" value="{{ old('email', $member->email) }}" required
+                    <label for="kelas" class="block text-sm font-medium text-gray-700 mb-2">Kelas *</label>
+                    <select name="kelas" id="kelas" required
                         class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
-                    @error('email')
+                        <option value="">Pilih Kelas</option>
+                        <option value="7A" {{ old('kelas', $member->kelas) == '7A' ? 'selected' : '' }}>7A</option>
+                        <option value="7B" {{ old('kelas', $member->kelas) == '7B' ? 'selected' : '' }}>7B</option>
+                        <option value="7C" {{ old('kelas', $member->kelas) == '7C' ? 'selected' : '' }}>7C</option>
+                        <option value="8A" {{ old('kelas', $member->kelas) == '8A' ? 'selected' : '' }}>8A</option>
+                        <option value="8B" {{ old('kelas', $member->kelas) == '8B' ? 'selected' : '' }}>8B</option>
+                        <option value="8C" {{ old('kelas', $member->kelas) == '8C' ? 'selected' : '' }}>8C</option>
+                        <option value="9A" {{ old('kelas', $member->kelas) == '9A' ? 'selected' : '' }}>9A</option>
+                        <option value="9B" {{ old('kelas', $member->kelas) == '9B' ? 'selected' : '' }}>9B</option>
+                        <option value="9C" {{ old('kelas', $member->kelas) == '9C' ? 'selected' : '' }}>9C</option>
+                    </select>
+                    @error('kelas')
                         <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
                     @enderror
                 </div>
@@ -47,15 +58,6 @@
                     <input type="text" name="phone" id="phone" value="{{ old('phone', $member->phone) }}"
                         class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
                     @error('phone')
-                        <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
-                    @enderror
-                </div>
-
-                <div>
-                    <label for="birth_date" class="block text-sm font-medium text-gray-700 mb-2">Tanggal Lahir</label>
-                    <input type="date" name="birth_date" id="birth_date" value="{{ old('birth_date', $member->birth_date) }}"
-                        class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
-                    @error('birth_date')
                         <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
                     @enderror
                 </div>
