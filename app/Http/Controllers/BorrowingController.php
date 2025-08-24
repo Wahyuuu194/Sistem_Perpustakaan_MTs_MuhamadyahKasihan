@@ -22,7 +22,10 @@ class BorrowingController extends Controller
 
     public function create(): View
     {
-        $books = Book::where('quantity', '>', 0)->get();
+        $books = Book::all()->filter(function($book) {
+            return $book->available_quantity > 0;
+        });
+        
         $members = Member::where('status', 'active')->get();
         return view('borrowings.create', compact('books', 'members'));
     }

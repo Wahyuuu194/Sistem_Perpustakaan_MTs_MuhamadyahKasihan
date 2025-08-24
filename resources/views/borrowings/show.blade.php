@@ -79,15 +79,32 @@
                     <h3 class="text-lg font-medium text-gray-900 mb-4">Informasi Buku</h3>
                     
                     <div class="p-4 bg-gray-50 rounded-lg">
-                        <h4 class="font-medium text-gray-900 text-lg mb-2">{{ $borrowing->book->title }}</h4>
-                        <div class="space-y-2 text-sm text-gray-600">
-                            <p><strong>Penulis:</strong> {{ $borrowing->book->author }}</p>
-                            <p><strong>ISBN:</strong> {{ $borrowing->book->isbn ?? 'Tidak ada ISBN' }}</p>
-                            @if($borrowing->book->publisher)
-                                <p><strong>Penerbit:</strong> {{ $borrowing->book->publisher }}</p>
+                        <div class="flex items-start space-x-4">
+                            @if($borrowing->book->cover_image)
+                                <div class="flex-shrink-0">
+                                    <img src="{{ asset('storage/' . $borrowing->book->cover_image) }}" alt="Cover {{ $borrowing->book->title }}" 
+                                        class="w-24 h-32 object-cover rounded-lg border shadow-sm">
+                                </div>
+                            @else
+                                <div class="flex-shrink-0">
+                                    <div class="w-24 h-32 bg-gray-200 rounded-lg border flex items-center justify-center">
+                                        <i class="fas fa-book text-gray-400 text-2xl"></i>
+                                    </div>
+                                </div>
                             @endif
-                            <p><strong>Kategori:</strong> {{ $borrowing->book->category ?? 'Tidak ada kategori' }}</p>
-                            <p><strong>Stok:</strong> {{ $borrowing->book->available_quantity }}/{{ $borrowing->book->quantity }}</p>
+                            
+                            <div class="flex-1">
+                                <h4 class="font-medium text-gray-900 text-lg mb-2">{{ $borrowing->book->title }}</h4>
+                                <div class="space-y-2 text-sm text-gray-600">
+                                    <p><strong>Penulis:</strong> {{ $borrowing->book->author }}</p>
+                                    <p><strong>ISBN:</strong> {{ $borrowing->book->isbn ?? 'Tidak ada ISBN' }}</p>
+                                    @if($borrowing->book->publisher)
+                                        <p><strong>Penerbit:</strong> {{ $borrowing->book->publisher }}</p>
+                                    @endif
+                                    <p><strong>Kategori:</strong> {{ $borrowing->book->category ?? 'Tidak ada kategori' }}</p>
+                                    <p><strong>Stok:</strong> {{ $borrowing->book->available_quantity }}/{{ $borrowing->book->quantity }}</p>
+                                </div>
+                            </div>
                         </div>
                     </div>
                     
