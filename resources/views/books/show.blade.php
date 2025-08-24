@@ -16,8 +16,23 @@
                 </div>
             </div>
 
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-                <div>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <div class="md:col-span-1">
+                    @if($book->cover_image)
+                        <div class="mb-4">
+                            <img src="{{ asset('storage/' . $book->cover_image) }}" alt="Cover {{ $book->title }}" 
+                                class="w-full max-w-xs mx-auto object-cover rounded-lg border shadow-lg">
+                        </div>
+                    @else
+                        <div class="mb-4">
+                            <div class="w-full max-w-xs mx-auto h-80 bg-gray-200 rounded-lg border flex items-center justify-center">
+                                <i class="fas fa-book text-gray-400 text-6xl"></i>
+                            </div>
+                        </div>
+                    @endif
+                </div>
+                
+                <div class="md:col-span-2">
                     <h2 class="text-xl font-bold text-gray-900 mb-4">{{ $book->title }}</h2>
                     
                     <div class="space-y-4">
@@ -56,9 +71,10 @@
                         </div>
                     </div>
                 </div>
-                
-                <div>
-                    <h3 class="text-lg font-medium text-gray-900 mb-4">Riwayat Peminjaman</h3>
+            </div>
+            
+            <div class="mt-8">
+                <h3 class="text-lg font-medium text-gray-900 mb-4">Riwayat Peminjaman</h3>
                     
                     @if($book->borrowings->count() > 0)
                         <div class="space-y-3">

@@ -16,7 +16,8 @@ class Book extends Model
         'publication_year',
         'quantity',
         'category',
-        'location'
+        'location',
+        'cover_image'
     ];
 
     public function borrowings(): HasMany

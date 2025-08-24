@@ -78,29 +78,30 @@
             </div>
             <div class="p-6">
                 @if($recentBorrowings->count() > 0)
-                    <div class="space-y-4">
+                    <div class="space-y-4 max-h-64 overflow-y-auto">
                         @foreach($recentBorrowings as $borrowing)
                             <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-                                <div>
-                                    <p class="font-medium text-gray-900">{{ $borrowing->book->title }}</p>
-                                    <p class="text-sm text-gray-600">{{ $borrowing->member->name }}</p>
-                                    <p class="text-xs text-gray-500">{{ $borrowing->member->member_id }} - {{ $borrowing->member->kelas ?? 'Kelas belum ditentukan' }}</p>
+                                <div class="flex items-center space-x-3">
+                                    @if($borrowing->book->cover_image)
+                                        <img src="{{ asset('storage/' . $borrowing->book->cover_image) }}" alt="Cover {{ $borrowing->book->title }}" 
+                                            class="w-12 h-16 object-cover rounded border shadow-sm">
+                                    @else
+                                        <div class="w-12 h-16 bg-gray-200 rounded border flex items-center justify-center">
+                                            <i class="fas fa-book text-gray-400"></i>
+                                        </div>
+                                    @endif
+                                    
+                                    <div>
+                                        <p class="font-medium text-gray-900">{{ $borrowing->book->title }}</p>
+                                        <p class="text-sm text-gray-600">{{ $borrowing->member->name }}</p>
+                                        <p class="text-xs text-gray-500">{{ $borrowing->member->student_id ?? 'N/A' }} - {{ $borrowing->member->kelas ?? 'Kelas belum ditentukan' }}</p>
+                                    </div>
                                 </div>
                                 <span class="px-2 py-1 text-xs font-medium rounded-full 
-                                    @if($borrowing->status === 'borrowed') 
-                                        @if($borrowing->due_date->isPast()) bg-red-100 text-red-800
-                                        @else bg-blue-100 text-blue-800 @endif
+                                    @if($borrowing->status === 'borrowed') bg-blue-100 text-blue-800
                                     @elseif($borrowing->status === 'returned') bg-green-100 text-green-800
-                                    @else bg-yellow-100 text-yellow-800 @endif">
-                                    @if($borrowing->status === 'borrowed' && $borrowing->due_date->isPast())
-                                        Terlambat
-                                    @elseif($borrowing->status === 'borrowed')
-                                        Dipinjam
-                                    @elseif($borrowing->status === 'returned')
-                                        Dikembalikan
-                                    @else
-                                        {{ $borrowing->status_label }}
-                                    @endif
+                                    @else bg-red-100 text-red-800 @endif">
+                                    {{ $borrowing->status_label }}
                                 </span>
                             </div>
                         @endforeach
@@ -164,6 +165,7 @@
                 </div>
             </a>
         </div>
+    </div>
     </div>
 </div>
 @endsection

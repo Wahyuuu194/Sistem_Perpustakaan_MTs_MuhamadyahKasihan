@@ -9,10 +9,29 @@ use Illuminate\Http\RedirectResponse;
 
 class BookController extends Controller
 {
-    public function index(): View
+    public function index(Request $request): View
     {
-        $books = Book::all();
-        return view('books.index', compact('books'));
+        $query = Book::query();
+        
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->where(function($q) use ($search) {
+                $q->where('title', 'like', "%{$search}%")
+                  ->orWhere('author', 'like', "%{$search}%")
+                  ->orWhere('publisher', 'like', "%{$search}%")
+                  ->orWhere('category', 'like', "%{$search}%")
+                  ->orWhere('isbn', 'like', "%{$search}%");
+            });
+        }
+        
+        if ($request->filled('category') && $request->category !== 'all') {
+            $query->where('category', $request->category);
+        }
+        
+        $books = $query->get();
+        $categories = Book::distinct()->pluck('category')->filter()->values();
+        
+        return view('books.index', compact('books', 'categories'));
     }
 
     public function create(): View
@@ -30,7 +49,13 @@ class BookController extends Controller
             'category' => 'nullable|string|max:100',
             'quantity' => 'required|integer|min:1',
             'available_quantity' => 'required|integer|min:0',
+            'cover_image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
         ]);
+
+        if ($request->hasFile('cover_image')) {
+            $imagePath = $request->file('cover_image')->store('book-covers', 'public');
+            $validated['cover_image'] = $imagePath;
+        }
 
         Book::create($validated);
 
@@ -59,7 +84,16 @@ class BookController extends Controller
             'category' => 'nullable|string|max:100',
             'quantity' => 'required|integer|min:1',
             'available_quantity' => 'required|integer|min:0',
+            'cover_image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
         ]);
+
+        if ($request->hasFile('cover_image')) {
+            if ($book->cover_image) {
+                \Storage::disk('public')->delete($book->cover_image);
+            }
+            $imagePath = $request->file('cover_image')->store('book-covers', 'public');
+            $validated['cover_image'] = $imagePath;
+        }
 
         $book->update($validated);
 
