@@ -4,7 +4,7 @@
 <div class="space-y-8 pb-8">
     <!-- Header Section -->
     <div class="flex justify-between items-center">
-        <h1 class="text-3xl font-bold text-gray-900">Dashboard</h1>
+        <h1 class="text-3xl font-bold text-gray-900">Beranda</h1>
         <div class="flex space-x-3">
             <a href="{{ route('books.create') }}" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition">
                 <i class="fas fa-plus mr-2"></i>Tambah Buku

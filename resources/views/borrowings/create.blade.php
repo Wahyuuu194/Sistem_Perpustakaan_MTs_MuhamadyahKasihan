@@ -15,7 +15,7 @@
             
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
-                    <label for="book_id" class="block text-sm font-medium text-gray-700 mb-2">Pilih Buku *</label>
+                    <label for="book_id" class="block text-sm font-medium text-gray-700 mb-2">Pilih Buku </label>
                     <select name="book_id" id="book_id" required
                         class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
                         <option value="">Pilih Buku</option>
@@ -31,7 +31,7 @@
                 </div>
 
                 <div>
-                    <label for="member_id" class="block text-sm font-medium text-gray-700 mb-2">Pilih Anggota *</label>
+                    <label for="member_id" class="block text-sm font-medium text-gray-700 mb-2">Pilih Anggota </label>
                     <select name="member_id" id="member_id" required
                         class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
                         <option value="">Pilih Anggota</option>
@@ -46,8 +46,17 @@
                     @enderror
                 </div>
 
+                <!-- <div>
+                    <label for="quantity" class="block text-sm font-medium text-gray-700 mb-2">Jumlah Pinjam </label>
+                    <input type="number" name="quantity" id="quantity" value="{{ old('quantity', 1) }}" min="1" required
+                        class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    @error('quantity')
+                        <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
+                    @enderror
+                </div> -->
+
                 <div>
-                    <label for="borrow_date" class="block text-sm font-medium text-gray-700 mb-2">Tanggal Pinjam *</label>
+                    <label for="borrow_date" class="block text-sm font-medium text-gray-700 mb-2">Tanggal Pinjam </label>
                     <input type="date" name="borrow_date" id="borrow_date" value="{{ old('borrow_date', date('Y-m-d')) }}" required
                         class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
                     @error('borrow_date')
@@ -56,7 +65,7 @@
                 </div>
 
                 <div>
-                    <label for="due_date" class="block text-sm font-medium text-gray-700 mb-2">Tanggal Jatuh Tempo *</label>
+                    <label for="due_date" class="block text-sm font-medium text-gray-700 mb-2">Tanggal Pengembalian </label>
                     <input type="date" name="due_date" id="due_date" value="{{ old('due_date', date('Y-m-d', strtotime('+14 days'))) }}" required
                         class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
                     @error('due_date')
@@ -76,9 +85,9 @@
                             <div class="mt-2 text-sm text-blue-700">
                                 <ul class="list-disc list-inside space-y-1">
                                     <li>Buku hanya bisa dipinjam jika stok tersedia</li>
-                                    <li>Jatuh tempo otomatis 14 hari dari tanggal pinjam</li>
-                                    <li>Status peminjaman akan otomatis menjadi "Dipinjam"</li>
-                                    <li>Stok buku akan berkurang otomatis saat dipinjam</li>
+                                    <!-- <li>Jatuh tempo otomatis 14 hari dari tanggal pinjam</li> -->
+                                    <!-- <li>Status peminjaman akan otomatis menjadi "Dipinjam"</li>
+                                    <li>Stok buku akan berkurang otomatis saat dipinjam</li> -->
                                 </ul>
                             </div>
                         </div>

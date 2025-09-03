@@ -9,6 +9,7 @@ use Illuminate\Http\Request;
 use Illuminate\View\View;
 use Illuminate\Http\RedirectResponse;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\DB;
 
 class BorrowingController extends Controller
 {
@@ -35,7 +36,7 @@ class BorrowingController extends Controller
         $validated = $request->validate([
             'book_id' => 'required|exists:books,id',
             'member_id' => 'required|exists:members,id',
-            'borrow_date' => 'required|date',
+            'borrow_date' => 'required|date',   
             'due_date' => 'required|date|after:borrow_date',
         ]);
 

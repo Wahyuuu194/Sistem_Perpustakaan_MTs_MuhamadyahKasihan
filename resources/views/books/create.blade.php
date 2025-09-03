@@ -15,7 +15,7 @@
             
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
-                    <label for="title" class="block text-sm font-medium text-gray-700 mb-2">Judul Buku *</label>
+                    <label for="title" class="block text-sm font-medium text-gray-700 mb-2">Judul Buku</label>
                     <input type="text" name="title" id="title" value="{{ old('title') }}" required
                         class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
                     @error('title')
@@ -24,7 +24,7 @@
                 </div>
 
                 <div>
-                    <label for="author" class="block text-sm font-medium text-gray-700 mb-2">Penulis *</label>
+                    <label for="author" class="block text-sm font-medium text-gray-700 mb-2">Penulis </label>
                     <input type="text" name="author" id="author" value="{{ old('author') }}" required
                         class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
                     @error('author')
@@ -70,7 +70,7 @@
                 </div>
 
                 <div>
-                    <label for="quantity" class="block text-sm font-medium text-gray-700 mb-2">Jumlah Total *</label>
+                    <label for="quantity" class="block text-sm font-medium text-gray-700 mb-2">Jumlah Total </label>
                     <input type="number" name="quantity" id="quantity" value="{{ old('quantity', 1) }}" min="1" required
                         class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
                     @error('quantity')
@@ -79,7 +79,7 @@
                 </div>
 
                 <div>
-                    <label for="available_quantity" class="block text-sm font-medium text-gray-700 mb-2">Jumlah Tersedia *</label>
+                    <label for="available_quantity" class="block text-sm font-medium text-gray-700 mb-2">Jumlah Tersedia </label>
                     <input type="number" name="available_quantity" id="available_quantity" value="{{ old('available_quantity', 1) }}" min="0" required
                         class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
                     @error('available_quantity')
@@ -91,7 +91,9 @@
                     <label for="cover_image" class="block text-sm font-medium text-gray-700 mb-2">Foto Cover Buku</label>
                     <input type="file" name="cover_image" id="cover_image" accept="image/*"
                         class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
-                    <p class="text-xs text-gray-500 mt-1">Format: JPG, PNG, GIF. Maksimal 2MB. Bisa dilewati.</p>
+                    <p class="text-xs text-gray-500 mt-1">Format: JPG, PNG, Maksimal 2MB.</p>
+                    <p class="text-xs text-gray-500 mt-1"></p>
+                    <p class="text-xs text-red-500 mt-1">Bisa dilewati.</p>
                     @error('cover_image')
                         <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
                     @enderror
