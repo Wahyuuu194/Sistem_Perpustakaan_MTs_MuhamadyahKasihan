@@ -94,7 +94,14 @@
                             @endif
                             
                             <div class="flex-1">
-                                <h4 class="font-medium text-gray-900 text-lg mb-2">{{ $borrowing->book->title }}</h4>
+                                <div class="flex items-center gap-2 mb-2">
+                                    <h4 class="font-medium text-gray-900 text-lg">{{ $borrowing->book->title }}</h4>
+                                    @if($borrowing->book->kelas)
+                                        <span class="px-2 py-1 text-xs font-medium rounded-full bg-purple-100 text-purple-800">
+                                            {{ $borrowing->book->kelas }}
+                                        </span>
+                                    @endif
+                                </div>
                                 <div class="space-y-2 text-sm text-gray-600">
                                     <p><strong>Penulis:</strong> {{ $borrowing->book->author }}</p>
                                     <p><strong>ISBN:</strong> {{ $borrowing->book->isbn ?? 'Tidak ada ISBN' }}</p>

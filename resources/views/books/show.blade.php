@@ -33,7 +33,14 @@
                 </div>
                 
                 <div class="md:col-span-2">
-                    <h2 class="text-xl font-bold text-gray-900 mb-4">{{ $book->title }}</h2>
+                    <div class="flex items-center gap-3 mb-4">
+                        <h2 class="text-xl font-bold text-gray-900">{{ $book->title }}</h2>
+                        @if($book->kelas)
+                            <span class="px-3 py-1 text-sm font-medium rounded-full bg-purple-100 text-purple-800">
+                                {{ $book->kelas }}
+                            </span>
+                        @endif
+                    </div>
                     
                     <div class="space-y-4">
                         <div>

@@ -4,7 +4,7 @@
 <div class="space-y-8 pb-8">
     <!-- Header Section -->
     <div class="flex justify-between items-center">
-        <h1 class="text-3xl font-bold text-gray-900">Dashboard</h1>
+        <h1 class="text-3xl font-bold text-gray-900">Beranda</h1>
         <div class="flex space-x-3">
             <a href="{{ route('books.create') }}" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition">
                 <i class="fas fa-plus mr-2"></i>Tambah Buku
@@ -92,7 +92,14 @@
                                     @endif
                                     
                                     <div>
-                                        <p class="font-medium text-gray-900">{{ $borrowing->book->title }}</p>
+                                        <div class="flex items-center gap-2">
+                                            <p class="font-medium text-gray-900">{{ $borrowing->book->title }}</p>
+                                            @if($borrowing->book->kelas)
+                                                <span class="px-2 py-1 text-xs font-medium rounded-full bg-purple-100 text-purple-800">
+                                                    {{ $borrowing->book->kelas }}
+                                                </span>
+                                            @endif
+                                        </div>
                                         <p class="text-sm text-gray-600">{{ $borrowing->member->name }}</p>
                                         <p class="text-xs text-gray-500">{{ $borrowing->member->student_id ?? 'N/A' }} - {{ $borrowing->member->kelas ?? 'Kelas belum ditentukan' }}</p>
                                     </div>
@@ -123,7 +130,14 @@
                         @foreach($popularBooks as $book)
                             <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
                                 <div>
-                                    <p class="font-medium text-gray-900">{{ $book->title }}</p>
+                                    <div class="flex items-center gap-2">
+                                        <p class="font-medium text-gray-900">{{ $book->title }}</p>
+                                        @if($book->kelas)
+                                            <span class="px-2 py-1 text-xs font-medium rounded-full bg-purple-100 text-purple-800">
+                                                {{ $book->kelas }}
+                                            </span>
+                                        @endif
+                                    </div>
                                     <p class="text-sm text-gray-600">{{ $book->author }}</p>
                                 </div>
                                 <span class="px-2 py-1 text-xs font-medium bg-blue-100 text-blue-800 rounded-full">

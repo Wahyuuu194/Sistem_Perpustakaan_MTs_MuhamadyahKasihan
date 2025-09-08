@@ -3,19 +3,21 @@
 @section('content')
 <div class="max-w-2xl mx-auto py-6">
     <div class="bg-white rounded-lg shadow p-6">
-        <div class="flex items-center justify-between mb-6">
+    <div class="mb-6">
+        <div class="flex items-center justify-between mb-4">
             <h1 class="text-2xl font-bold text-gray-900">Tambah Anggota Baru</h1>
             <a href="{{ route('members.index') }}" class="text-blue-600 hover:text-blue-800">
                 <i class="fas fa-arrow-left mr-2"></i>Kembali ke Daftar
             </a>
         </div>
+    </div>
 
         <form action="{{ route('members.store') }}" method="POST">
             @csrf
             
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
-                    <label for="name" class="block text-sm font-medium text-gray-700 mb-2">Nama Lengkap *</label>
+                    <label for="name" class="block text-sm font-medium text-gray-700 mb-2">Nama Lengkap </label>
                     <input type="text" name="name" id="name" value="{{ old('name') }}" required
                         class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
                     @error('name')
@@ -24,7 +26,7 @@
                 </div>
 
                 <div>
-                    <label for="member_id" class="block text-sm font-medium text-gray-700 mb-2">NIS/NISN *</label>
+                    <label for="member_id" class="block text-sm font-medium text-gray-700 mb-2">NIS/NISN </label>
                     <input type="text" name="member_id" id="member_id" value="{{ old('member_id') }}" required
                         class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
                     @error('member_id')
@@ -33,7 +35,7 @@
                 </div>
 
                 <div>
-                    <label for="kelas" class="block text-sm font-medium text-gray-700 mb-2">Kelas *</label>
+                    <label for="kelas" class="block text-sm font-medium text-gray-700 mb-2">Kelas </label>
                     <select name="kelas" id="kelas" required
                         class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
                         <option value="">Pilih Kelas</option>
@@ -62,7 +64,7 @@
                 </div>
 
                 <div>
-                    <label for="registration_date" class="block text-sm font-medium text-gray-700 mb-2">Tanggal Registrasi *</label>
+                    <label for="registration_date" class="block text-sm font-medium text-gray-700 mb-2">Tanggal Registrasi </label>
                     <input type="date" name="registration_date" id="registration_date" value="{{ old('registration_date', date('Y-m-d')) }}" required
                         class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
                     @error('registration_date')
@@ -71,7 +73,7 @@
                 </div>
 
                 <div>
-                    <label for="status" class="block text-sm font-medium text-gray-700 mb-2">Status *</label>
+                    <label for="status" class="block text-sm font-medium text-gray-700 mb-2">Status </label>
                     <select name="status" id="status" required
                         class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
                         <option value="active" {{ old('status') == 'active' ? 'selected' : '' }}>Aktif</option>
@@ -103,4 +105,6 @@
         </form>
     </div>
 </div>
+
+
 @endsection

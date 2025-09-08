@@ -4,9 +4,14 @@
 <div class="space-y-6 pb-8">
     <div class="flex justify-between items-center">
         <h1 class="text-3xl font-bold text-gray-900">Daftar Anggota</h1>
-        <a href="{{ route('members.create') }}" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition">
-            <i class="fas fa-plus mr-2"></i>Tambah Anggota
-        </a>
+        <div class="flex gap-3">
+            <button type="button" id="importBtn" class="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition">
+                <i class="fas fa-file-import mr-2"></i>Import CSV
+            </button>
+            <a href="{{ route('members.create') }}" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition">
+                <i class="fas fa-plus mr-2"></i>Tambah Anggota
+            </a>
+        </div>
     </div>
 
     <!-- Search Form -->
@@ -145,4 +150,99 @@
         </div>
     </div>
 </div>
+
+<!-- Import CSV Modal -->
+<div id="importModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 hidden">
+    <div class="flex items-center justify-center min-h-screen p-4">
+        <div class="bg-white rounded-lg shadow-xl max-w-md w-full">
+            <div class="p-6">
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="text-lg font-semibold text-gray-900">Import Data Siswa</h3>
+                    <button type="button" id="closeImportModal" class="text-gray-400 hover:text-gray-600">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                
+                <form id="importForm" enctype="multipart/form-data">
+                    @csrf
+                    <div class="mb-4">
+                        <label for="csv_file" class="block text-sm font-medium text-gray-700 mb-2">
+                            Pilih File CSV
+                        </label>
+                        <input type="file" id="csv_file" name="csv_file" accept=".csv" required
+                            class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100">
+                        <p class="text-xs text-gray-500 mt-1">
+                            Format: NISN, Nama, Kelas (dari Google Sheets)
+                        </p>
+                    </div>
+                    
+                    <div class="flex justify-end space-x-3">
+                        <button type="button" id="cancelImport" class="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-md hover:bg-gray-200">
+                            Batal
+                        </button>
+                        <button type="submit" id="submitImport" class="px-4 py-2 text-sm font-medium text-white bg-green-600 rounded-md hover:bg-green-700">
+                            <i class="fas fa-upload mr-1"></i>Import
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const importBtn = document.getElementById('importBtn');
+    const importModal = document.getElementById('importModal');
+    const closeImportModal = document.getElementById('closeImportModal');
+    const cancelImport = document.getElementById('cancelImport');
+    const importForm = document.getElementById('importForm');
+    const submitImport = document.getElementById('submitImport');
+
+    importBtn.addEventListener('click', function() {
+        importModal.classList.remove('hidden');
+    });
+
+    closeImportModal.addEventListener('click', function() {
+        importModal.classList.add('hidden');
+    });
+
+    cancelImport.addEventListener('click', function() {
+        importModal.classList.add('hidden');
+    });
+
+    importForm.addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        const formData = new FormData(this);
+        submitImport.disabled = true;
+        submitImport.innerHTML = '<i class="fas fa-spinner fa-spin mr-1"></i>Importing...';
+
+        fetch('{{ route("members.import-csv") }}', {
+            method: 'POST',
+            body: formData,
+            headers: {
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                alert(`Import berhasil!\n${data.message}`);
+                location.reload();
+            } else {
+                alert('Import gagal: ' + data.message);
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Terjadi kesalahan saat import data');
+        })
+        .finally(() => {
+            submitImport.disabled = false;
+            submitImport.innerHTML = '<i class="fas fa-upload mr-1"></i>Import';
+        });
+    });
+});
+</script>
 @endsection

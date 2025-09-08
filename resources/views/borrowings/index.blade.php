@@ -28,7 +28,14 @@
                             @foreach($borrowings as $borrowing)
                                 <tr>
                                     <td class="px-6 py-4 whitespace-nowrap">
-                                        <div class="text-sm font-medium text-gray-900">{{ $borrowing->book->title }}</div>
+                                        <div class="flex items-center gap-2">
+                                            <div class="text-sm font-medium text-gray-900">{{ $borrowing->book->title }}</div>
+                                            @if($borrowing->book->kelas)
+                                                <span class="px-2 py-1 text-xs font-medium rounded-full bg-purple-100 text-purple-800">
+                                                    {{ $borrowing->book->kelas }}
+                                                </span>
+                                            @endif
+                                        </div>
                                         <div class="text-sm text-gray-500">{{ $borrowing->book->author }}</div>
                                     </td>
                                     <td class="px-6 py-4 whitespace-nowrap">

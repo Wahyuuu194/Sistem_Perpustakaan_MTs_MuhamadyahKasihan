@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>Sistem Perpustakaan MTs Muhamadyah</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
@@ -12,11 +13,11 @@
         <div class="max-w-7xl mx-auto px-4">
             <div class="flex justify-between items-center py-4">
                 <div class="flex items-center space-x-4">
-                    <i class="fas fa-book-open text-2xl"></i>
-                    <h1 class="text-xl font-bold">Perpustakaan MTs Muhamadyah</h1>
+                    <img src="{{ asset('images/logo-mts.png') }}" alt="Logo MTs Muhamadyah Kasihan" class="h-12 w-12 rounded-full bg-white p-1">
+                    <h1 class="text-xl font-bold">Perpustakaan MTs Muhamadyah Kasihan</h1>
                 </div>
                 <div class="hidden md:flex space-x-6">
-                    <a href="{{ route('dashboard') }}" class="hover:text-blue-200 transition">Dashboard</a>
+                    <a href="{{ route('dashboard') }}" class="hover:text-blue-200 transition">Beranda</a>
                     <a href="{{ route('books.index') }}" class="hover:text-blue-200 transition">Buku</a>
                     <a href="{{ route('members.index') }}" class="hover:text-blue-200 transition">Anggota</a>
                     <a href="{{ route('borrowings.index') }}" class="hover:text-blue-200 transition">Peminjaman</a>
