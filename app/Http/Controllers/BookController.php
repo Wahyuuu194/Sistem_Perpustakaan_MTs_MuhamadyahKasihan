@@ -20,6 +20,7 @@ class BookController extends Controller
                   ->orWhere('author', 'like', "%{$search}%")
                   ->orWhere('publisher', 'like', "%{$search}%")
                   ->orWhere('category', 'like', "%{$search}%")
+                  ->orWhere('kelas', 'like', "%{$search}%")
                   ->orWhere('isbn', 'like', "%{$search}%");
             });
         }
@@ -47,6 +48,7 @@ class BookController extends Controller
             'isbn' => 'nullable|string|max:20|unique:books',
             'publisher' => 'nullable|string|max:255',
             'category' => 'nullable|string|max:100',
+            'kelas' => 'nullable|string|max:50',
             'quantity' => 'required|integer|min:1',
             'available_quantity' => 'required|integer|min:0',
             'cover_image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
@@ -82,6 +84,7 @@ class BookController extends Controller
             'isbn' => 'nullable|string|max:20|unique:books,isbn,' . $book->id,
             'publisher' => 'nullable|string|max:255',
             'category' => 'nullable|string|max:100',
+            'kelas' => 'nullable|string|max:50',
             'quantity' => 'required|integer|min:1',
             'available_quantity' => 'required|integer|min:0',
             'cover_image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',

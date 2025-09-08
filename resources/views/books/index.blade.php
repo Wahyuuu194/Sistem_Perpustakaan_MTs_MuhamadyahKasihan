@@ -19,7 +19,7 @@
                             <i class="fas fa-search text-gray-400"></i>
                         </div>
                         <input type="text" name="search" value="{{ request('search') }}" 
-                            placeholder="Cari buku berdasarkan judul, penulis, penerbit, kategori, atau ISBN..."
+                            placeholder="Cari buku berdasarkan judul, penulis, penerbit, kategori, kelas, atau ISBN..."
                             class="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md leading-5 bg-white placeholder-gray-500 focus:outline-none focus:placeholder-gray-400 focus:ring-1 focus:ring-blue-500 focus:border-blue-500">
                     </div>
                 </div>
@@ -91,7 +91,14 @@
                                             @endif
                                             
                                             <div>
-                                                <div class="text-sm font-medium text-gray-900">{{ $book->title }}</div>
+                                                <div class="flex items-center gap-2">
+                                                    <div class="text-sm font-medium text-gray-900">{{ $book->title }}</div>
+                                                    @if($book->kelas)
+                                                        <span class="px-2 py-1 text-xs font-medium rounded-full bg-purple-100 text-purple-800">
+                                                            {{ $book->kelas }}
+                                                        </span>
+                                                    @endif
+                                                </div>
                                                 <div class="text-sm text-gray-500">{{ $book->publisher }}</div>
                                             </div>
                                         </div>

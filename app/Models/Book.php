@@ -16,6 +16,7 @@ class Book extends Model
         'publication_year',
         'quantity',
         'category',
+        'kelas',
         'location',
         'cover_image'
     ];

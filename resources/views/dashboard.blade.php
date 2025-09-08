@@ -92,7 +92,14 @@
                                     @endif
                                     
                                     <div>
-                                        <p class="font-medium text-gray-900">{{ $borrowing->book->title }}</p>
+                                        <div class="flex items-center gap-2">
+                                            <p class="font-medium text-gray-900">{{ $borrowing->book->title }}</p>
+                                            @if($borrowing->book->kelas)
+                                                <span class="px-2 py-1 text-xs font-medium rounded-full bg-purple-100 text-purple-800">
+                                                    {{ $borrowing->book->kelas }}
+                                                </span>
+                                            @endif
+                                        </div>
                                         <p class="text-sm text-gray-600">{{ $borrowing->member->name }}</p>
                                         <p class="text-xs text-gray-500">{{ $borrowing->member->student_id ?? 'N/A' }} - {{ $borrowing->member->kelas ?? 'Kelas belum ditentukan' }}</p>
                                     </div>
@@ -123,7 +130,14 @@
                         @foreach($popularBooks as $book)
                             <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
                                 <div>
-                                    <p class="font-medium text-gray-900">{{ $book->title }}</p>
+                                    <div class="flex items-center gap-2">
+                                        <p class="font-medium text-gray-900">{{ $book->title }}</p>
+                                        @if($book->kelas)
+                                            <span class="px-2 py-1 text-xs font-medium rounded-full bg-purple-100 text-purple-800">
+                                                {{ $book->kelas }}
+                                            </span>
+                                        @endif
+                                    </div>
                                     <p class="text-sm text-gray-600">{{ $book->author }}</p>
                                 </div>
                                 <span class="px-2 py-1 text-xs font-medium bg-blue-100 text-blue-800 rounded-full">
