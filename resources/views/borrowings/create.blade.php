@@ -4,9 +4,9 @@
 <div class="max-w-2xl mx-auto py-6">
     <div class="bg-white rounded-lg shadow p-6">
         <div class="flex items-center justify-between mb-6">
-            <h1 class="text-2xl font-bold text-gray-900">Buat Peminjaman Baru</h1>
+            <!-- <h1 class="text-2xl font-bold text-gray-900">Buat Peminjaman Baru</h1> -->
             <a href="{{ route('borrowings.index') }}" class="text-blue-600 hover:text-blue-800">
-                <i class="fas fa-arrow-left mr-2"></i>Kembali ke Daftar
+                <i class="fas fa-arrow-left mr-2"></i>Kembali 
             </a>
         </div>
 

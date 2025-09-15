@@ -3,7 +3,7 @@
 @section('content')
 <div class="space-y-6 pb-8">
     <div class="flex justify-between items-center">
-        <h1 class="text-3xl font-bold text-gray-900">Daftar Anggota</h1>
+        <!-- <h1 class="text-3xl font-bold text-gray-900">Daftar Anggota</h1> -->
         <div class="flex gap-3">
             <button type="button" id="importBtn" class="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition">
                 <i class="fas fa-file-import mr-2"></i>Import CSV

@@ -4,8 +4,8 @@
 <div class="space-y-8 pb-8">
     <!-- Header Section -->
     <div class="flex justify-between items-center">
-        <h1 class="text-3xl font-bold text-gray-900">Beranda</h1>
-        <div class="flex space-x-3">
+        <!-- <h1 class="text-3xl font-bold text-gray-900">Beranda</h1> -->
+        <!-- <div class="flex space-x-3">
             <a href="{{ route('books.create') }}" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition">
                 <i class="fas fa-plus mr-2"></i>Tambah Buku
             </a>
@@ -15,7 +15,7 @@
             <a href="{{ route('borrowings.create') }}" class="bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700 transition">
                 <i class="fas fa-handshake mr-2"></i>Peminjaman Baru
             </a>
-        </div>
+        </div> -->
     </div>
 
     <!-- Statistics Cards -->
@@ -78,7 +78,7 @@
             </div>
             <div class="p-6">
                 @if($recentBorrowings->count() > 0)
-                    <div class="space-y-4 max-h-64 overflow-y-auto">
+                    <div class="space-y-2  max-h-64 overflow-y-auto">
                         @foreach($recentBorrowings as $borrowing)
                             <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
                                 <div class="flex items-center space-x-3">
@@ -126,7 +126,7 @@
             </div>
             <div class="p-6">
                 @if($popularBooks->count() > 0)
-                    <div class="space-y-4">
+                    <div class="space-y-2 max-h-64 overflow-y-auto">
                         @foreach($popularBooks as $book)
                             <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
                                 <div>
