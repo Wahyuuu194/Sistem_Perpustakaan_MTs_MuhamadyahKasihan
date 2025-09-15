@@ -19,7 +19,7 @@
     </div>
 
     <!-- Statistics Cards -->
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6">
         <div class="bg-white rounded-lg shadow p-6">
             <div class="flex items-center">
                 <div class="p-3 rounded-full bg-blue-100 text-blue-600">
@@ -40,6 +40,18 @@
                 <div class="ml-4">
                     <p class="text-sm font-medium text-gray-600">Total Anggota</p>
                     <p class="text-2xl font-semibold text-gray-900">{{ $totalMembers }}</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-white rounded-lg shadow p-6">
+            <div class="flex items-center">
+                <div class="p-3 rounded-full bg-orange-100 text-orange-600">
+                    <i class="fas fa-chalkboard-teacher text-2xl"></i>
+                </div>
+                <div class="ml-4">
+                    <p class="text-sm font-medium text-gray-600">Total Guru</p>
+                    <p class="text-2xl font-semibold text-gray-900">{{ $totalTeachers }}</p>
                 </div>
             </div>
         </div>
@@ -100,8 +112,13 @@
                                                 </span>
                                             @endif
                                         </div>
-                                        <p class="text-sm text-gray-600">{{ $borrowing->member->name }}</p>
-                                        <p class="text-xs text-gray-500">{{ $borrowing->member->student_id ?? 'N/A' }} - {{ $borrowing->member->kelas ?? 'Kelas belum ditentukan' }}</p>
+                                        @if($borrowing->member)
+                                            <p class="text-sm text-gray-600">{{ $borrowing->member->name }}</p>
+                                            <p class="text-xs text-gray-500">{{ $borrowing->member->student_id ?? 'N/A' }} - {{ $borrowing->member->kelas ?? 'Kelas belum ditentukan' }}</p>
+                                        @elseif($borrowing->teacher)
+                                            <p class="text-sm text-gray-600">{{ $borrowing->teacher->name }}</p>
+                                            <p class="text-xs text-gray-500">{{ $borrowing->teacher->teacher_id ?? 'N/A' }} - {{ $borrowing->teacher->subject ?? 'Tidak ada mata pelajaran' }}</p>
+                                        @endif
                                     </div>
                                 </div>
                                 <span class="px-2 py-1 text-xs font-medium rounded-full 
