@@ -16,11 +16,97 @@
                     <img src="{{ asset('images/logo-mts.png') }}" alt="Logo MTs Muhamadyah Kasihan" class="h-12 w-12 rounded-full bg-white p-1">
                     <h1 class="text-xl font-bold">Perpustakaan MTs Muhamadyah Kasihan</h1>
                 </div>
-                <div class="hidden md:flex space-x-6">
+                <div class="hidden md:flex items-center space-x-6">
                     <a href="{{ route('dashboard') }}" class="hover:text-blue-200 transition">Beranda</a>
+                    
+                    <!-- Anggota Dropdown -->
+                    <div class="relative group">
+                        <button class="flex items-center space-x-1 hover:text-blue-200 transition">
+                            <span>Anggota</span>
+                            <i class="fas fa-chevron-down text-sm"></i>
+                        </button>
+                        
+                        <div class="absolute left-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-50 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200">
+                            <a href="{{ route('members.index') }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition">
+                                <i class="fas fa-users mr-2 text-green-600"></i>Murid
+                            </a>
+                            <a href="{{ route('teachers.index') }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition">
+                                <i class="fas fa-chalkboard-teacher mr-2 text-orange-600"></i>Guru
+                            </a>
+                        </div>
+                    </div>
+                    
                     <a href="{{ route('books.index') }}" class="hover:text-blue-200 transition">Buku</a>
-                    <a href="{{ route('members.index') }}" class="hover:text-blue-200 transition">Anggota</a>
                     <a href="{{ route('borrowings.index') }}" class="hover:text-blue-200 transition">Peminjaman</a>
+                    
+                    <!-- User Dropdown -->
+                    <div class="relative group">
+                        <button class="flex items-center space-x-2 hover:text-blue-200 transition">
+                            <i class="fas fa-user-circle text-xl"></i>
+                            <span class="max-w-32 truncate">{{ Auth::user()->name }}</span>
+                            <i class="fas fa-chevron-down text-sm"></i>
+                        </button>
+                        
+                        <div class="absolute right-0 mt-2 w-64 bg-white rounded-md shadow-lg py-1 z-50 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200">
+                            <div class="px-4 py-2 text-sm text-gray-700 border-b">
+                                <p class="font-medium break-words">{{ Auth::user()->name }}</p>
+                                <p class="text-gray-500 break-all text-xs">{{ Auth::user()->email }}</p>
+                            </div>
+                            <form method="POST" action="{{ route('logout') }}" class="block">
+                                @csrf
+                                <button type="submit" class="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition">
+                                    <i class="fas fa-sign-out-alt mr-2"></i>Logout
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Mobile menu button -->
+                <div class="md:hidden">
+                    <button type="button" id="mobile-menu-button" class="text-white hover:text-blue-200 focus:outline-none focus:text-blue-200">
+                        <i class="fas fa-bars text-xl"></i>
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Mobile menu -->
+            <div id="mobile-menu" class="md:hidden hidden bg-blue-700 px-4 py-2">
+                <div class="space-y-2">
+                    <a href="{{ route('dashboard') }}" class="block px-3 py-2 text-white hover:bg-blue-600 rounded-md">Beranda</a>
+                    
+                    <!-- Mobile Anggota Dropdown -->
+                    <div class="relative">
+                        <button type="button" id="mobile-anggota-button" class="w-full text-left px-3 py-2 text-white hover:bg-blue-600 rounded-md flex items-center justify-between">
+                            <span>Anggota</span>
+                            <i class="fas fa-chevron-down text-sm"></i>
+                        </button>
+                        
+                        <div id="mobile-anggota-menu" class="hidden pl-4 space-y-1">
+                            <a href="{{ route('members.index') }}" class="block px-3 py-2 text-blue-200 hover:bg-blue-600 rounded-md">
+                                <i class="fas fa-users mr-2 text-green-400"></i>Murid
+                            </a>
+                            <a href="{{ route('teachers.index') }}" class="block px-3 py-2 text-blue-200 hover:bg-blue-600 rounded-md">
+                                <i class="fas fa-chalkboard-teacher mr-2 text-orange-400"></i>Guru
+                            </a>
+                        </div>
+                    </div>
+                    
+                    <a href="{{ route('books.index') }}" class="block px-3 py-2 text-white hover:bg-blue-600 rounded-md">Buku</a>
+                    <a href="{{ route('borrowings.index') }}" class="block px-3 py-2 text-white hover:bg-blue-600 rounded-md">Peminjaman</a>
+                    
+                    <div class="border-t border-blue-600 pt-2">
+                        <div class="px-3 py-2 text-blue-200 text-sm">
+                            <p class="font-medium">{{ Auth::user()->name }}</p>
+                            <p class="text-xs text-blue-300">{{ Auth::user()->email }}</p>
+                        </div>
+                        <form method="POST" action="{{ route('logout') }}">
+                            @csrf
+                            <button type="submit" class="w-full text-left px-3 py-2 text-white hover:bg-blue-600 rounded-md">
+                                <i class="fas fa-sign-out-alt mr-2"></i>Logout
+                            </button>
+                        </form>
+                    </div>
                 </div>
             </div>
         </div>
@@ -51,5 +137,29 @@
             <p>&copy; 2024 Sistem Perpustakaan MTs Muhamadyah. All rights reserved.</p>
         </div>
     </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Mobile menu toggle
+            const mobileMenuButton = document.getElementById('mobile-menu-button');
+            const mobileMenu = document.getElementById('mobile-menu');
+            
+            if (mobileMenuButton && mobileMenu) {
+                mobileMenuButton.addEventListener('click', function() {
+                    mobileMenu.classList.toggle('hidden');
+                });
+            }
+            
+            // Mobile anggota dropdown toggle
+            const mobileAnggotaButton = document.getElementById('mobile-anggota-button');
+            const mobileAnggotaMenu = document.getElementById('mobile-anggota-menu');
+            
+            if (mobileAnggotaButton && mobileAnggotaMenu) {
+                mobileAnggotaButton.addEventListener('click', function() {
+                    mobileAnggotaMenu.classList.toggle('hidden');
+                });
+            }
+        });
+    </script>
 </body>
 </html>

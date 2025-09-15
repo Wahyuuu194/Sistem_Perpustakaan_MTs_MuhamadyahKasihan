@@ -12,6 +12,9 @@ class DatabaseSeeder extends Seeder
 {
     public function run(): void
     {
+        // Create admin users first
+        $this->call(AdminUserSeeder::class);
+
         // Sample Books
         $books = [
             [

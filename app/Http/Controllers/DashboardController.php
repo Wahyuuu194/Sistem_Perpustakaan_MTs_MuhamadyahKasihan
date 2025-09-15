@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Book;
 use App\Models\Member;
+use App\Models\Teacher;
 use App\Models\Borrowing;
 use Illuminate\Http\Request;
 
@@ -13,12 +14,13 @@ class DashboardController extends Controller
     {
         $totalBooks = Book::count();
         $totalMembers = Member::count();
+        $totalTeachers = Teacher::count();
         $totalBorrowed = Borrowing::where('status', 'borrowed')->count();
         $overdueBooks = Borrowing::where('status', 'borrowed')
             ->where('due_date', '<', now())
             ->count();
 
-        $recentBorrowings = Borrowing::with(['book', 'member'])
+        $recentBorrowings = Borrowing::with(['book', 'member', 'teacher'])
             ->orderBy('created_at', 'desc')
             ->take(5)
             ->get();
@@ -30,7 +32,8 @@ class DashboardController extends Controller
 
         return view('dashboard', compact(
             'totalBooks',
-            'totalMembers', 
+            'totalMembers',
+            'totalTeachers', 
             'totalBorrowed',
             'overdueBooks',
             'recentBorrowings',

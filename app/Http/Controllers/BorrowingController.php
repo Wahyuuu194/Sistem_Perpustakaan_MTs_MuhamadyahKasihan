@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Book;
 use App\Models\Member;
+use App\Models\Teacher;
 use App\Models\Borrowing;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
@@ -28,17 +29,24 @@ class BorrowingController extends Controller
         });
         
         $members = Member::where('status', 'active')->get();
-        return view('borrowings.create', compact('books', 'members'));
+        $teachers = Teacher::where('status', 'active')->get();
+        return view('borrowings.create', compact('books', 'members', 'teachers'));
     }
 
     public function store(Request $request): RedirectResponse
     {
         $validated = $request->validate([
             'book_id' => 'required|exists:books,id',
-            'member_id' => 'required|exists:members,id',
+            'member_id' => 'nullable|exists:members,id',
+            'teacher_id' => 'nullable|exists:teachers,id',
             'borrow_date' => 'required|date',   
             'due_date' => 'required|date|after:borrow_date',
         ]);
+
+        // Pastikan ada member_id atau teacher_id
+        if (!$validated['member_id'] && !$validated['teacher_id']) {
+            return back()->withErrors(['member_id' => 'Pilih anggota atau guru untuk peminjaman.']);
+        }
 
         $book = Book::find($validated['book_id']);
         
@@ -56,7 +64,7 @@ class BorrowingController extends Controller
 
     public function show(Borrowing $borrowing): View
     {
-        $borrowing->load(['book', 'member']);
+        $borrowing->load(['book', 'member', 'teacher']);
         return view('borrowings.show', compact('borrowing'));
     }
 

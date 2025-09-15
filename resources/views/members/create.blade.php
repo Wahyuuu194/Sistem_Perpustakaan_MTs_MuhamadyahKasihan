@@ -5,9 +5,9 @@
     <div class="bg-white rounded-lg shadow p-6">
     <div class="mb-6">
         <div class="flex items-center justify-between mb-4">
-            <h1 class="text-2xl font-bold text-gray-900">Tambah Anggota Baru</h1>
+            <!-- <h1 class="text-2xl font-bold text-gray-900">Tambah Anggota Baru</h1> -->
             <a href="{{ route('members.index') }}" class="text-blue-600 hover:text-blue-800">
-                <i class="fas fa-arrow-left mr-2"></i>Kembali ke Daftar
+                <i class="fas fa-arrow-left mr-2"></i>Kembali 
             </a>
         </div>
     </div>

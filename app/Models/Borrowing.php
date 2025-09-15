@@ -13,6 +13,7 @@ class Borrowing extends Model
     protected $fillable = [
         'book_id',
         'member_id',
+        'teacher_id',
         'borrow_date',
         'due_date',
         'return_date',
@@ -33,6 +34,11 @@ class Borrowing extends Model
     public function member(): BelongsTo
     {
         return $this->belongsTo(Member::class);
+    }
+
+    public function teacher(): BelongsTo
+    {
+        return $this->belongsTo(Teacher::class);
     }
 
     // Accessor untuk status dalam bahasa Indonesia
