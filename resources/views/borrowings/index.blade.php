@@ -2,17 +2,18 @@
 
 @section('content')
 <div class="space-y-6 pb-8">
-    <div class="flex justify-between items-center">
-        <!-- <h1 class="text-3xl font-bold text-gray-900">Daftar Peminjaman</h1> -->
-        <a href="{{ route('borrowings.create') }}" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition">
-            <i class="fas fa-plus mr-2"></i>Buat Peminjaman
+    <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
+        <h1 class="text-2xl sm:text-3xl font-bold text-gray-900">Daftar Peminjaman</h1>
+        <a href="{{ route('borrowings.create') }}" class="bg-blue-600 text-white px-3 py-2 sm:px-4 rounded-lg hover:bg-blue-700 transition text-sm sm:text-base text-center">
+            <i class="fas fa-plus mr-1 sm:mr-2"></i><span class="hidden sm:inline">Buat Peminjaman</span><span class="sm:hidden">Buat</span>
         </a>
     </div>
 
     <div class="bg-white rounded-lg shadow">
-        <div class="p-6">
+        <div class="p-4 sm:p-6">
             @if($borrowings->count() > 0)
-                <div class="overflow-x-auto">
+                <!-- Desktop Table View -->
+                <div class="hidden lg:block overflow-x-auto">
                     <table class="min-w-full divide-y divide-gray-200">
                         <thead class="bg-gray-50">
                             <tr>
@@ -93,6 +94,86 @@
                             @endforeach
                         </tbody>
                     </table>
+                </div>
+
+                <!-- Mobile Card View -->
+                <div class="lg:hidden space-y-4">
+                    @foreach($borrowings as $borrowing)
+                        <div class="bg-gray-50 rounded-lg p-4 border border-gray-200">
+                            <div class="flex justify-between items-start mb-3">
+                                <div class="flex-1 min-w-0">
+                                    <h3 class="text-lg font-semibold text-gray-900 line-clamp-2">{{ $borrowing->book->title }}</h3>
+                                    <p class="text-sm text-gray-600 mt-1">{{ $borrowing->book->author }}</p>
+                                    @if($borrowing->book->kelas)
+                                        <span class="inline-block px-2 py-1 text-xs font-medium rounded-full bg-purple-100 text-purple-800 mt-2">
+                                            {{ $borrowing->book->kelas }}
+                                        </span>
+                                    @endif
+                                </div>
+                                <div class="ml-3 flex-shrink-0">
+                                    @if($borrowing->status === 'borrowed')
+                                        @if($borrowing->due_date->isPast())
+                                            <span class="px-2 py-1 text-xs font-medium rounded-full bg-red-100 text-red-800">
+                                                Terlambat
+                                            </span>
+                                        @else
+                                            <span class="px-2 py-1 text-xs font-medium rounded-full bg-blue-100 text-blue-800">
+                                                Dipinjam
+                                            </span>
+                                        @endif
+                                    @elseif($borrowing->status === 'returned')
+                                        <span class="px-2 py-1 text-xs font-medium rounded-full bg-green-100 text-green-800">
+                                            Dikembalikan
+                                        </span>
+                                    @else
+                                        <span class="px-2 py-1 text-xs font-medium rounded-full bg-yellow-100 text-yellow-800">
+                                            {{ $borrowing->status_label }}
+                                        </span>
+                                    @endif
+                                </div>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <p class="text-xs text-gray-500 uppercase tracking-wide">Peminjam</p>
+                                <p class="text-sm font-medium text-gray-900">{{ $borrowing->member->name }}</p>
+                                <p class="text-sm text-gray-600">{{ $borrowing->member->member_id }}</p>
+                                <p class="text-xs text-gray-500">{{ $borrowing->member->kelas ?? 'Kelas belum ditentukan' }}</p>
+                            </div>
+                            
+                            <div class="grid grid-cols-2 gap-3 mb-3">
+                                <div>
+                                    <p class="text-xs text-gray-500 uppercase tracking-wide">Tanggal Pinjam</p>
+                                    <p class="text-sm text-gray-900">{{ $borrowing->borrow_date->format('d/m/Y') }}</p>
+                                </div>
+                                <div>
+                                    <p class="text-xs text-gray-500 uppercase tracking-wide">Tanggal Kembali</p>
+                                    <p class="text-sm text-gray-900">{{ $borrowing->due_date->format('d/m/Y') }}</p>
+                                </div>
+                            </div>
+                            
+                            <div class="flex justify-end space-x-2">
+                                <a href="{{ route('borrowings.show', $borrowing) }}" class="text-blue-600 hover:text-blue-900 p-2">
+                                    <i class="fas fa-eye"></i>
+                                </a>
+                                @if($borrowing->status === 'borrowed')
+                                    <form action="{{ route('borrowings.return', $borrowing) }}" method="POST" class="inline">
+                                        @csrf
+                                        @method('PATCH')
+                                        <button type="submit" class="text-green-600 hover:text-green-900 p-2">
+                                            <i class="fas fa-undo"></i>
+                                        </button>
+                                    </form>
+                                @endif
+                                <form action="{{ route('borrowings.destroy', $borrowing) }}" method="POST" class="inline">
+                                    @csrf
+                                    @method('DELETE')
+                                    <button type="submit" class="text-red-600 hover:text-red-900 p-2" onclick="return confirm('Yakin ingin menghapus peminjaman ini?')">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                    @endforeach
                 </div>
             @else
                 <div class="text-center py-8">

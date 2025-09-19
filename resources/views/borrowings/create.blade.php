@@ -1,12 +1,12 @@
 @extends('layouts.app')
 
 @section('content')
-<div class="max-w-2xl mx-auto py-6">
-    <div class="bg-white rounded-lg shadow p-6">
-        <div class="flex items-center justify-between mb-6">
-            <!-- <h1 class="text-2xl font-bold text-gray-900">Buat Peminjaman Baru</h1> -->
-            <a href="{{ route('borrowings.index') }}" class="text-blue-600 hover:text-blue-800">
-                <i class="fas fa-arrow-left mr-2"></i>Kembali 
+<div class="max-w-2xl mx-auto py-4 sm:py-6 px-4 sm:px-0">
+    <div class="bg-white rounded-lg shadow p-4 sm:p-6">
+        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
+            <h1 class="text-xl sm:text-2xl font-bold text-gray-900">Buat Peminjaman Baru</h1>
+            <a href="{{ route('borrowings.index') }}" class="text-blue-600 hover:text-blue-800 text-sm sm:text-base">
+                <i class="fas fa-arrow-left mr-1 sm:mr-2"></i>Kembali 
             </a>
         </div>
 
@@ -94,8 +94,8 @@
                 <!-- Peminjam Type Selection -->
                 <div class="mb-6">
                     <label class="block text-sm font-medium text-gray-700 mb-3">Jenis Peminjam</label>
-                    <div class="flex space-x-6">
-                        <label class="flex items-center p-3 border-2 border-green-200 rounded-lg cursor-pointer hover:bg-green-50 transition">
+                    <div class="flex flex-col sm:flex-row gap-3 sm:gap-6">
+                        <label class="flex items-center p-3 border-2 border-green-200 rounded-lg cursor-pointer hover:bg-green-50 transition flex-1">
                             <input type="radio" name="borrower_type" value="student" id="borrower_student" checked
                                 class="mr-3 text-green-600 focus:ring-green-500">
                             <div class="flex items-center">
@@ -103,7 +103,7 @@
                                 <span class="text-sm font-medium text-gray-700">Siswa</span>
                             </div>
                         </label>
-                        <label class="flex items-center p-3 border-2 border-blue-200 rounded-lg cursor-pointer hover:bg-blue-50 transition">
+                        <label class="flex items-center p-3 border-2 border-blue-200 rounded-lg cursor-pointer hover:bg-blue-50 transition flex-1">
                             <input type="radio" name="borrower_type" value="teacher" id="borrower_teacher"
                                 class="mr-3 text-blue-600 focus:ring-blue-500">
                             <div class="flex items-center">
@@ -124,16 +124,16 @@
                     <!-- Scan QR Code Button for Student -->
                     <div class="mb-4">
                         <div class="bg-white border border-green-200 rounded-lg p-3">
-                            <div class="flex items-center justify-between gap-4">
+                            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
                                 <div class="flex items-center flex-1">
-                                    <i class="fas fa-qrcode text-green-600 text-lg mr-3"></i>
-                                    <div class="flex-1">
+                                    <i class="fas fa-qrcode text-green-600 text-lg mr-3 flex-shrink-0"></i>
+                                    <div class="flex-1 min-w-0">
                                         <h3 class="text-sm font-semibold text-green-800 mb-1">Scan QR Code Kartu Akses Siswa</h3>
                                         <p class="text-xs text-green-600">Gunakan kamera untuk scan QR code dari kartu akses siswa</p>
                                     </div>
                                 </div>
                                 <div class="flex-shrink-0">
-                                    <button type="button" id="scanMemberBtn" class="px-3 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 transition font-medium text-sm">
+                                    <button type="button" id="scanMemberBtn" class="w-full sm:w-auto px-3 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 transition font-medium text-sm">
                                         <i class="fas fa-camera mr-1"></i>Scan QR
                                     </button>
                                 </div>
@@ -172,16 +172,16 @@
                     <!-- Scan QR Code Button for Teacher -->
                     <div class="mb-4">
                         <div class="bg-white border border-blue-200 rounded-lg p-3">
-                            <div class="flex items-center justify-between gap-4">
+                            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
                                 <div class="flex items-center flex-1">
-                                    <i class="fas fa-qrcode text-blue-600 text-lg mr-3"></i>
-                                    <div class="flex-1">
+                                    <i class="fas fa-qrcode text-blue-600 text-lg mr-3 flex-shrink-0"></i>
+                                    <div class="flex-1 min-w-0">
                                         <h3 class="text-sm font-semibold text-blue-800 mb-1">Scan QR Code Kartu Akses Guru</h3>
                                         <p class="text-xs text-blue-600">Gunakan kamera untuk scan QR code dari kartu akses guru</p>
                                     </div>
                                 </div>
                                 <div class="flex-shrink-0">
-                                    <button type="button" id="scanTeacherBtn" class="px-3 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition font-medium text-sm">
+                                    <button type="button" id="scanTeacherBtn" class="w-full sm:w-auto px-3 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition font-medium text-sm">
                                         <i class="fas fa-camera mr-1"></i>Scan QR
                                     </button>
                                 </div>
@@ -218,7 +218,7 @@
                     Periode Peminjaman
                 </h3>
                 <div class="bg-gray-50 rounded-lg p-4">
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
                         <div>
                             <label for="borrow_date" class="block text-sm font-medium text-gray-700 mb-2">Tanggal Pinjam</label>
                             <input type="date" name="borrow_date" id="borrow_date" value="{{ old('borrow_date', date('Y-m-d')) }}" required
@@ -263,12 +263,12 @@
             </div>
 
             <!-- Action Buttons -->
-            <div class="flex justify-end space-x-3 pt-6 border-t border-gray-200">
-                <a href="{{ route('borrowings.index') }}" class="px-6 py-2 text-gray-700 bg-gray-200 rounded-lg hover:bg-gray-300 transition font-medium">
-                    <i class="fas fa-times mr-2"></i>Batal
+            <div class="flex flex-col sm:flex-row justify-end gap-3 pt-6 border-t border-gray-200">
+                <a href="{{ route('borrowings.index') }}" class="w-full sm:w-auto px-4 sm:px-6 py-2 text-gray-700 bg-gray-200 rounded-lg hover:bg-gray-300 transition font-medium text-center">
+                    <i class="fas fa-times mr-1 sm:mr-2"></i>Batal
                 </a>
-                <button type="submit" class="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition font-medium">
-                    <i class="fas fa-save mr-2"></i>Buat Peminjaman
+                <button type="submit" class="w-full sm:w-auto px-4 sm:px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition font-medium">
+                    <i class="fas fa-save mr-1 sm:mr-2"></i>Buat Peminjaman
                 </button>
             </div>
         </form>
@@ -276,14 +276,14 @@
 </div>
 
 <!-- QR Scanner Modal -->
-<div id="qrModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 hidden">
+<div id="qrModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 hidden z-50">
     <div class="flex items-center justify-center min-h-screen p-4">
-        <div class="bg-white rounded-lg shadow-xl max-w-md w-full">
-            <div class="p-6">
+        <div class="bg-white rounded-lg shadow-xl max-w-md w-full mx-4">
+            <div class="p-4 sm:p-6">
                 <div class="flex items-center justify-between mb-4">
                     <h3 class="text-lg font-semibold text-gray-900" id="qrModalTitle">Scan QR Code</h3>
-                    <button type="button" id="closeQrModal" class="text-gray-400 hover:text-gray-600">
-                        <i class="fas fa-times"></i>
+                    <button type="button" id="closeQrModal" class="text-gray-400 hover:text-gray-600 p-1">
+                        <i class="fas fa-times text-lg"></i>
                     </button>
                 </div>
                 
@@ -297,11 +297,11 @@
                         class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
                 </div>
 
-                <div class="flex justify-end space-x-3">
-                    <button type="button" id="cancelQrScan" class="px-4 py-2 text-gray-700 bg-gray-200 rounded-md hover:bg-gray-300 transition">
+                <div class="flex flex-col sm:flex-row justify-end gap-2 sm:gap-3">
+                    <button type="button" id="cancelQrScan" class="w-full sm:w-auto px-4 py-2 text-gray-700 bg-gray-200 rounded-md hover:bg-gray-300 transition">
                         Batal
                     </button>
-                    <button type="button" id="processQrScan" class="px-4 py-2 text-white bg-green-600 rounded-md hover:bg-green-700 transition">
+                    <button type="button" id="processQrScan" class="w-full sm:w-auto px-4 py-2 text-white bg-green-600 rounded-md hover:bg-green-700 transition">
                         Proses Data
                     </button>
                 </div>
