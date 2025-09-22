@@ -52,6 +52,20 @@
                                 <p class="font-medium break-words">{{ Auth::user()->name }}</p>
                                 <p class="text-gray-500 break-all text-xs">{{ Auth::user()->email }}</p>
                             </div>
+                            <a href="{{ route('import-books') }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition">
+                                <i class="fas fa-file-import mr-2 text-green-600"></i>Import Buku
+                            </a>
+                            <a href="{{ route('check-books') }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition">
+                                <i class="fas fa-search mr-2 text-blue-600"></i>Cek Data Buku
+                            </a>
+                            <div class="border-t border-gray-100 my-1"></div>
+                            <a href="{{ route('members.import') }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition">
+                                <i class="fas fa-file-import mr-2 text-orange-600"></i>Import Murid
+                            </a>
+                            <a href="{{ route('teachers.import') }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition">
+                                <i class="fas fa-file-import mr-2 text-purple-600"></i>Import Guru
+                            </a>
+                            <div class="border-t border-gray-100 my-1"></div>
                             <form method="POST" action="{{ route('logout') }}" class="block">
                                 @csrf
                                 <button type="submit" class="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition">
@@ -100,6 +114,21 @@
                             <p class="font-medium">{{ Auth::user()->name }}</p>
                             <p class="text-xs text-blue-300">{{ Auth::user()->email }}</p>
                         </div>
+                        <div class="px-3 py-1 text-blue-300 text-xs border-b border-blue-600">
+                            <p class="font-medium">Administrator</p>
+                        </div>
+                        <a href="{{ route('import-books') }}" class="block px-3 py-2 text-blue-200 hover:bg-blue-600 rounded-md">
+                            <i class="fas fa-file-import mr-2 text-green-400"></i>Import Buku
+                        </a>
+                        <a href="{{ route('check-books') }}" class="block px-3 py-2 text-blue-200 hover:bg-blue-600 rounded-md">
+                            <i class="fas fa-search mr-2 text-blue-400"></i>Cek Data Buku
+                        </a>
+                        <a href="{{ route('members.import') }}" class="block px-3 py-2 text-blue-200 hover:bg-blue-600 rounded-md">
+                            <i class="fas fa-file-import mr-2 text-orange-400"></i>Import Murid
+                        </a>
+                        <a href="{{ route('teachers.import') }}" class="block px-3 py-2 text-blue-200 hover:bg-blue-600 rounded-md">
+                            <i class="fas fa-file-import mr-2 text-purple-400"></i>Import Guru
+                        </a>
                         <form method="POST" action="{{ route('logout') }}">
                             @csrf
                             <button type="submit" class="w-full text-left px-3 py-2 text-white hover:bg-blue-600 rounded-md">

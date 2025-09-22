@@ -10,6 +10,11 @@ use Carbon\Carbon;
 
 class MemberController extends Controller
 {
+    public function showImportForm(): View
+    {
+        return view('members.import');
+    }
+
     public function index(Request $request): View
     {
         $query = Member::query();

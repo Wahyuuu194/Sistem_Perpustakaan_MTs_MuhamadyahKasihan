@@ -9,6 +9,11 @@ use Illuminate\Http\RedirectResponse;
 
 class TeacherController extends Controller
 {
+    public function showImportForm(): View
+    {
+        return view('teachers.import');
+    }
+
     public function index(): View
     {
         $teachers = Teacher::orderBy('name')->paginate(15);

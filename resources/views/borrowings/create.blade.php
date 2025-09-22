@@ -24,7 +24,7 @@
                     
                     <!-- Search Input -->
                     <div class="relative mb-3">
-                        <input type="text" id="book_search" placeholder="Cari buku berdasarkan judul, pengarang, atau ISBN..." 
+                        <input type="text" id="book_search" placeholder="Cari buku berdasarkan judul, pengarang, kategori, atau ISBN..." 
                             class="w-full px-3 py-2 pl-10 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
                         <div class="absolute left-3 top-2.5 text-gray-400">
                             <i class="fas fa-search"></i>
@@ -54,8 +54,9 @@
                                 data-author="{{ $book->author }}"
                                 data-isbn="{{ $book->isbn }}"
                                 data-kelas="{{ $book->kelas }}"
+                                data-category="{{ $book->category }}"
                                 data-available="{{ $book->available_quantity }}"
-                                data-search="{{ strtolower($book->title . ' ' . $book->author . ' ' . $book->isbn . ' ' . $book->kelas) }}">
+                                data-search="{{ strtolower($book->title . ' ' . $book->author . ' ' . $book->isbn . ' ' . $book->kelas . ' ' . $book->category) }}">
                                 {{ $book->title }}@if($book->kelas) [{{ $book->kelas }}]@endif - {{ $book->author }} (Stok: {{ $book->available_quantity }})
                             </option>
                         @endforeach
@@ -70,6 +71,7 @@
                                 <div class="text-sm text-blue-700">
                                     <p><strong>Judul:</strong> <span id="selected_title"></span></p>
                                     <p><strong>Pengarang:</strong> <span id="selected_author"></span></p>
+                                    <p><strong>Kategori:</strong> <span id="selected_category"></span></p>
                                     <p><strong>ISBN:</strong> <span id="selected_isbn"></span></p>
                                     <p><strong>Kelas:</strong> <span id="selected_kelas"></span></p>
                                     <p><strong>Stok Tersedia:</strong> <span id="selected_available" class="font-semibold"></span></p>
@@ -373,6 +375,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     id: option.value,
                     title: option.getAttribute('data-title'),
                     author: option.getAttribute('data-author'),
+                    category: option.getAttribute('data-category'),
                     isbn: option.getAttribute('data-isbn'),
                     kelas: option.getAttribute('data-kelas'),
                     available: option.getAttribute('data-available'),
@@ -392,7 +395,7 @@ document.addEventListener('DOMContentLoaded', function() {
                         <div class="flex-1">
                             <h4 class="text-sm font-medium text-gray-900">${book.title}${book.kelas ? ` [${book.kelas}]` : ''}</h4>
                             <p class="text-xs text-gray-600">${book.author}</p>
-                            <p class="text-xs text-gray-500">ISBN: ${book.isbn || 'N/A'}</p>
+                            <p class="text-xs text-gray-500">Kategori: ${book.category || 'N/A'} | ISBN: ${book.isbn || 'N/A'}</p>
                         </div>
                         <div class="text-right">
                             <span class="text-xs font-medium ${parseInt(book.available) > 5 ? 'text-green-600' : parseInt(book.available) > 0 ? 'text-yellow-600' : 'text-red-600'}">
@@ -462,6 +465,7 @@ document.addEventListener('DOMContentLoaded', function() {
             // Show book info
             document.getElementById('selected_title').textContent = selectedOption.getAttribute('data-title') || 'N/A';
             document.getElementById('selected_author').textContent = selectedOption.getAttribute('data-author') || 'N/A';
+            document.getElementById('selected_category').textContent = selectedOption.getAttribute('data-category') || 'N/A';
             document.getElementById('selected_isbn').textContent = selectedOption.getAttribute('data-isbn') || 'N/A';
             document.getElementById('selected_kelas').textContent = selectedOption.getAttribute('data-kelas') || 'Semua Kelas';
             document.getElementById('selected_available').textContent = selectedOption.getAttribute('data-available') || '0';

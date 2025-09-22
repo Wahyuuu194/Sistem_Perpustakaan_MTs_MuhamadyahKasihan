@@ -16,8 +16,22 @@ class BookController extends Controller
         if ($request->filled('search')) {
             $search = $request->search;
             $query->where(function($q) use ($search) {
-                $q->where('title', 'like', "%{$search}%")
-                  ->orWhere('author', 'like', "%{$search}%")
+                // Pencarian yang lebih cerdas untuk seri buku
+                if (preg_match('/^(.+?)\s+(\d+)$/', $search, $matches)) {
+                    $baseTitle = $matches[1];
+                    $number = $matches[2];
+                    
+                    // Cari buku dengan judul yang mengandung base title dan nomor yang tepat
+                    $q->where(function($subQ) use ($baseTitle, $number) {
+                        $subQ->where('title', 'like', "%{$baseTitle}%")
+                             ->where('title', 'like', "%{$number}%");
+                    });
+                } else {
+                    // Pencarian normal
+                    $q->where('title', 'like', "%{$search}%");
+                }
+                
+                $q->orWhere('author', 'like', "%{$search}%")
                   ->orWhere('publisher', 'like', "%{$search}%")
                   ->orWhere('category', 'like', "%{$search}%")
                   ->orWhere('kelas', 'like', "%{$search}%")

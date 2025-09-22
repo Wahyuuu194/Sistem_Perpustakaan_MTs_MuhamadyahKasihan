@@ -5,9 +5,6 @@
     <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
         <h1 class="text-2xl sm:text-3xl font-bold text-gray-900">Daftar Guru</h1>
         <div class="flex flex-col sm:flex-row gap-2 sm:gap-3">
-            <button type="button" id="importBtn" class="bg-green-600 text-white px-3 py-2 sm:px-4 rounded-lg hover:bg-green-700 transition text-sm sm:text-base">
-                <i class="fas fa-file-import mr-1 sm:mr-2"></i><span class="hidden sm:inline">Import CSV</span><span class="sm:hidden">Import</span>
-            </button>
             <a href="{{ route('teachers.create') }}" class="bg-blue-600 text-white px-3 py-2 sm:px-4 rounded-lg hover:bg-blue-700 transition text-sm sm:text-base text-center">
                 <i class="fas fa-plus mr-1 sm:mr-2"></i><span class="hidden sm:inline">Tambah Guru</span><span class="sm:hidden">Tambah</span>
             </a>
@@ -178,98 +175,10 @@
     @endif
 </div>
 
-<!-- Import Modal -->
-<div id="importModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 hidden z-50">
-    <div class="flex items-center justify-center min-h-screen p-4">
-        <div class="bg-white rounded-lg shadow-xl max-w-md w-full mx-4">
-            <div class="p-4 sm:p-6">
-                <div class="flex items-center justify-between mb-4">
-                    <h3 class="text-lg font-semibold text-gray-900">Import Data Guru dari CSV</h3>
-                    <button type="button" id="closeImportModal" class="text-gray-400 hover:text-gray-600 p-1">
-                        <i class="fas fa-times text-lg"></i>
-                    </button>
-                </div>
-                
-                <form id="importForm" enctype="multipart/form-data">
-                    @csrf
-                    <div class="mb-4">
-                        <label for="csv_file" class="block text-sm font-medium text-gray-700 mb-2">
-                            Pilih File CSV
-                        </label>
-                        <input type="file" id="csv_file" name="csv_file" accept=".csv" required
-                            class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100">
-                        <p class="text-xs text-gray-500 mt-1">
-                            Format: NIP, Nama, Mata Pelajaran, Telepon (dari Google Sheets)
-                        </p>
-                    </div>
-                    
-                    <div class="flex flex-col sm:flex-row justify-end gap-2 sm:gap-3">
-                        <button type="button" id="cancelImport" class="w-full sm:w-auto px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-md hover:bg-gray-200">
-                            Batal
-                        </button>
-                        <button type="submit" id="submitImport" class="w-full sm:w-auto px-4 py-2 text-sm font-medium text-white bg-green-600 rounded-md hover:bg-green-700">
-                            <i class="fas fa-upload mr-1"></i>Import
-                        </button>
-                    </div>
-                </form>
-            </div>
-        </div>
-    </div>
-</div>
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    const importBtn = document.getElementById('importBtn');
-    const importModal = document.getElementById('importModal');
-    const closeImportModal = document.getElementById('closeImportModal');
-    const cancelImport = document.getElementById('cancelImport');
-    const importForm = document.getElementById('importForm');
-    const submitImport = document.getElementById('submitImport');
-
-    importBtn.addEventListener('click', function() {
-        importModal.classList.remove('hidden');
-    });
-
-    closeImportModal.addEventListener('click', function() {
-        importModal.classList.add('hidden');
-    });
-
-    cancelImport.addEventListener('click', function() {
-        importModal.classList.add('hidden');
-    });
-
-    importForm.addEventListener('submit', function(e) {
-        e.preventDefault();
-        
-        const formData = new FormData(this);
-        submitImport.disabled = true;
-        submitImport.innerHTML = '<i class="fas fa-spinner fa-spin mr-1"></i>Importing...';
-
-        fetch('{{ route("teachers.import-csv") }}', {
-            method: 'POST',
-            body: formData,
-            headers: {
-                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
-            }
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                alert(`Import berhasil!\n${data.message}`);
-                location.reload();
-            } else {
-                alert('Import gagal: ' + data.message);
-            }
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            alert('Terjadi kesalahan saat import data');
-        })
-        .finally(() => {
-            submitImport.disabled = false;
-            submitImport.innerHTML = '<i class="fas fa-upload mr-1"></i>Import';
-        });
-    });
+    // Import functionality removed - now available in Administrator menu
 });
 </script>
 @endsection

@@ -4,9 +4,11 @@
 <div class="space-y-6 pb-8">
     <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
         <h1 class="text-2xl sm:text-3xl font-bold text-gray-900">Daftar Buku</h1>
-        <a href="{{ route('books.create') }}" class="bg-blue-600 text-white px-3 py-2 sm:px-4 rounded-lg hover:bg-blue-700 transition text-sm sm:text-base text-center">
-            <i class="fas fa-plus mr-1 sm:mr-2"></i><span class="hidden sm:inline">Tambah Buku</span><span class="sm:hidden">Tambah</span>
-        </a>
+        <div class="flex flex-col sm:flex-row gap-2 sm:gap-3">
+            <a href="{{ route('books.create') }}" class="bg-blue-600 text-white px-3 py-2 sm:px-4 rounded-lg hover:bg-blue-700 transition text-sm sm:text-base text-center">
+                <i class="fas fa-plus mr-1 sm:mr-2"></i><span class="hidden sm:inline">Tambah Buku</span><span class="sm:hidden">Tambah</span>
+            </a>
+        </div>
     </div>
 
     <!-- Search Form -->
