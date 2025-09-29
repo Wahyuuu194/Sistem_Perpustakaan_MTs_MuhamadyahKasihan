@@ -19,6 +19,7 @@
                             <tr>
                                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Buku</th>
                                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Anggota</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Jumlah</th>
                                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tanggal Pinjam</th>
                                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tanggal Pengembalian</th>
                                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
@@ -43,6 +44,11 @@
                                         <div class="text-sm font-medium text-gray-900">{{ $borrowing->member->name }}</div>
                                         <div class="text-sm text-gray-500">{{ $borrowing->member->member_id }}</div>
                                         <div class="text-xs text-gray-400">{{ $borrowing->member->kelas ?? 'Kelas belum ditentukan' }}</div>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                        <span class="px-2 py-1 text-xs font-medium rounded-full bg-blue-100 text-blue-800">
+                                            {{ $borrowing->quantity }} buku
+                                        </span>
                                     </td>
                                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ $borrowing->borrow_date->format('d/m/Y') }}</td>
                                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ $borrowing->due_date->format('d/m/Y') }}</td>
@@ -138,6 +144,11 @@
                                 <p class="text-sm font-medium text-gray-900">{{ $borrowing->member->name }}</p>
                                 <p class="text-sm text-gray-600">{{ $borrowing->member->member_id }}</p>
                                 <p class="text-xs text-gray-500">{{ $borrowing->member->kelas ?? 'Kelas belum ditentukan' }}</p>
+                                <div class="mt-2">
+                                    <span class="px-2 py-1 text-xs font-medium rounded-full bg-blue-100 text-blue-800">
+                                        {{ $borrowing->quantity }} buku dipinjam
+                                    </span>
+                                </div>
                             </div>
                             
                             <div class="grid grid-cols-2 gap-3 mb-3">

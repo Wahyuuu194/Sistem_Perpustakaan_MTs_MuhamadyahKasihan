@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Book;
+use App\Services\MultipleBookImportService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
@@ -486,5 +487,48 @@ class BookImportController extends Controller
         ];
         
         return $mapping[$oldCategory] ?? 'Lainnya';
+    }
+
+    /**
+     * Import multiple Excel files
+     */
+    public function importMultipleFiles(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'excel_files' => 'required|array|min:1|max:10',
+            'excel_files.*' => 'required|file|mimes:csv,txt,xlsx,xls|max:10240', // 10MB max per file
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Validasi gagal: ' . implode(', ', $validator->errors()->all())
+            ], 400);
+        }
+
+        try {
+            $files = $request->file('excel_files');
+            $importService = new MultipleBookImportService();
+            
+            $result = $importService->importMultipleFiles($files);
+            
+            $message = "Import multiple files berhasil! ";
+            $message .= "Total imported: {$result['total_imported']}, ";
+            $message .= "Total updated: {$result['total_updated']}, ";
+            $message .= "Total errors: {$result['total_errors']}, ";
+            $message .= "Files processed: {$result['total_files']}";
+            
+            return response()->json([
+                'success' => true,
+                'message' => $message,
+                'data' => $result
+            ]);
+            
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Import gagal: ' . $e->getMessage()
+            ], 500);
+        }
     }
 }

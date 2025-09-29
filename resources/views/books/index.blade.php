@@ -5,6 +5,12 @@
     <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
         <h1 class="text-2xl sm:text-3xl font-bold text-gray-900">Daftar Buku</h1>
         <div class="flex flex-col sm:flex-row gap-2 sm:gap-3">
+            <a href="{{ route('check-books') }}" class="bg-green-600 text-white px-3 py-2 sm:px-4 rounded-lg hover:bg-green-700 transition text-sm sm:text-base text-center">
+                <i class="fas fa-search mr-1 sm:mr-2"></i><span class="hidden sm:inline">Cek Data Buku</span><span class="sm:hidden">Cek Data</span>
+            </a>
+            <button type="button" id="syncBooksBtn" class="bg-purple-600 text-white px-3 py-2 sm:px-4 rounded-lg hover:bg-purple-700 transition text-sm sm:text-base text-center">
+                <i class="fas fa-sync-alt mr-1 sm:mr-2"></i><span class="hidden sm:inline">Singkronkan</span><span class="sm:hidden">Sync</span>
+            </button>
             <a href="{{ route('books.create') }}" class="bg-blue-600 text-white px-3 py-2 sm:px-4 rounded-lg hover:bg-blue-700 transition text-sm sm:text-base text-center">
                 <i class="fas fa-plus mr-1 sm:mr-2"></i><span class="hidden sm:inline">Tambah Buku</span><span class="sm:hidden">Tambah</span>
             </a>
@@ -216,4 +222,112 @@
         </div>
     </div>
 </div>
+
+<!-- Progress Modal -->
+<div id="syncProgressModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 hidden z-50">
+    <div class="flex items-center justify-center min-h-screen p-4">
+        <div class="bg-white rounded-lg shadow-xl max-w-md w-full mx-4">
+            <div class="p-6">
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="text-lg font-semibold text-gray-900">Sinkronisasi Data Buku</h3>
+                </div>
+                
+                <div class="mb-4">
+                    <div class="flex justify-between text-sm text-gray-600 mb-2">
+                        <span>Progress</span>
+                        <span id="sync-progress-text">0%</span>
+                    </div>
+                    <div class="w-full bg-gray-200 rounded-full h-2">
+                        <div id="sync-progress-bar" class="bg-purple-600 h-2 rounded-full transition-all duration-300" style="width: 0%"></div>
+                    </div>
+                </div>
+
+                <div id="sync-status" class="text-sm text-gray-600">
+                    Memulai sinkronisasi...
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const syncBooksBtn = document.getElementById('syncBooksBtn');
+    const syncProgressModal = document.getElementById('syncProgressModal');
+    const syncProgressBar = document.getElementById('sync-progress-bar');
+    const syncProgressText = document.getElementById('sync-progress-text');
+    const syncStatus = document.getElementById('sync-status');
+
+    syncBooksBtn.addEventListener('click', function() {
+        if (confirm('Apakah Anda yakin ingin melakukan sinkronisasi data buku dari Google Sheets?')) {
+            // Disable button and show loading state
+            syncBooksBtn.disabled = true;
+            syncBooksBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-1 sm:mr-2"></i><span class="hidden sm:inline">Menyinkronkan...</span><span class="sm:hidden">Sync...</span>';
+            
+            // Show progress modal
+            syncProgressModal.classList.remove('hidden');
+            syncProgressBar.style.width = '0%';
+            syncProgressText.textContent = '0%';
+            syncStatus.textContent = 'Memulai sinkronisasi dari Google Sheets...';
+            
+            // Simulate progress
+            let progress = 0;
+            const interval = setInterval(() => {
+                progress += Math.random() * 20;
+                if (progress > 90) progress = 90;
+                
+                syncProgressBar.style.width = progress + '%';
+                syncProgressText.textContent = Math.round(progress) + '%';
+                syncStatus.textContent = 'Mengambil data dari Google Sheets...';
+            }, 500);
+
+            // Make AJAX request to sync endpoint
+            fetch('{{ route("books.sync-google-sheets") }}', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                clearInterval(interval);
+                syncProgressBar.style.width = '100%';
+                syncProgressText.textContent = '100%';
+                
+                if (data.success) {
+                    syncStatus.textContent = 'Sinkronisasi berhasil!';
+                    setTimeout(() => {
+                        syncProgressModal.classList.add('hidden');
+                        alert(data.message);
+                        // Reload the page to show updated data
+                        window.location.reload();
+                    }, 1000);
+                } else {
+                    syncStatus.textContent = 'Sinkronisasi gagal!';
+                    setTimeout(() => {
+                        syncProgressModal.classList.add('hidden');
+                        alert('Error: ' + data.message);
+                    }, 1000);
+                }
+            })
+            .catch(error => {
+                clearInterval(interval);
+                syncProgressBar.style.width = '100%';
+                syncProgressText.textContent = '100%';
+                syncStatus.textContent = 'Terjadi kesalahan!';
+                setTimeout(() => {
+                    syncProgressModal.classList.add('hidden');
+                    alert('Terjadi kesalahan: ' + error.message);
+                }, 1000);
+            })
+            .finally(() => {
+                // Re-enable button
+                syncBooksBtn.disabled = false;
+                syncBooksBtn.innerHTML = '<i class="fas fa-sync-alt mr-1 sm:mr-2"></i><span class="hidden sm:inline">Sync Google Sheets</span><span class="sm:hidden">Sync</span>';
+            });
+        }
+    });
+});
+</script>
 @endsection

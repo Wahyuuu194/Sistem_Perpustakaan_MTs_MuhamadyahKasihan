@@ -26,7 +26,7 @@
                 </div>
 
                 <div>
-                    <label for="member_id" class="block text-sm font-medium text-gray-700 mb-2">NIS/NISN </label>
+                    <label for="member_id" class="block text-sm font-medium text-gray-700 mb-2">NISN </label>
                     <input type="text" name="member_id" id="member_id" value="{{ old('member_id') }}" required
                         class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
                     @error('member_id')

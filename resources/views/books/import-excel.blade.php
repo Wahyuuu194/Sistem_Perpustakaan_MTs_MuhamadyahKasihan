@@ -34,6 +34,27 @@
             </div>
         </div>
 
+        <!-- Google Sheets Sync Section -->
+        <div class="bg-green-50 border border-green-200 rounded-lg p-4 mb-6">
+            <div class="flex items-center justify-between">
+                <div class="flex">
+                    <div class="flex-shrink-0">
+                        <i class="fas fa-sync-alt text-green-500 text-lg"></i>
+                    </div>
+                    <div class="ml-3">
+                        <h3 class="text-sm font-semibold text-green-800 mb-1">Sync dari Google Sheets</h3>
+                        <p class="text-sm text-green-700">
+                            Sinkronisasi data buku langsung dari Google Sheets yang sudah dipublikasikan
+                        </p>
+                    </div>
+                </div>
+                <button type="button" id="syncGoogleSheetsBtn" 
+                    class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition font-medium text-sm">
+                    <i class="fas fa-sync-alt mr-2"></i>Sync Sekarang
+                </button>
+            </div>
+        </div>
+
         <!-- Import Form -->
         <form action="{{ route('books.import-excel') }}" method="POST" enctype="multipart/form-data" id="importForm">
             @csrf
@@ -153,6 +174,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const progressBar = document.getElementById('progress-bar');
     const progressText = document.getElementById('progress-text');
     const importStatus = document.getElementById('import-status');
+    const syncGoogleSheetsBtn = document.getElementById('syncGoogleSheetsBtn');
 
     // Handle file selection
     fileInput.addEventListener('change', function() {
@@ -228,6 +250,78 @@ document.addEventListener('DOMContentLoaded', function() {
 
         // In a real implementation, you would submit the form here
         // For now, we'll just simulate the process
+    });
+
+    // Handle Google Sheets sync
+    syncGoogleSheetsBtn.addEventListener('click', function() {
+        if (confirm('Apakah Anda yakin ingin melakukan sinkronisasi data buku dari Google Sheets?')) {
+            // Disable button and show loading state
+            syncGoogleSheetsBtn.disabled = true;
+            syncGoogleSheetsBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Menyinkronkan...';
+            
+            // Show progress modal
+            progressModal.classList.remove('hidden');
+            progressBar.style.width = '0%';
+            progressText.textContent = '0%';
+            importStatus.textContent = 'Memulai sinkronisasi dari Google Sheets...';
+            
+            // Simulate progress
+            let progress = 0;
+            const interval = setInterval(() => {
+                progress += Math.random() * 20;
+                if (progress > 90) progress = 90;
+                
+                progressBar.style.width = progress + '%';
+                progressText.textContent = Math.round(progress) + '%';
+                importStatus.textContent = 'Mengambil data dari Google Sheets...';
+            }, 500);
+
+            // Make AJAX request to sync endpoint
+            fetch('{{ route("books.sync-google-sheets") }}', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                clearInterval(interval);
+                progressBar.style.width = '100%';
+                progressText.textContent = '100%';
+                
+                if (data.success) {
+                    importStatus.textContent = 'Sinkronisasi berhasil!';
+                    setTimeout(() => {
+                        progressModal.classList.add('hidden');
+                        alert(data.message);
+                        // Redirect to books index
+                        window.location.href = '{{ route("books.index") }}';
+                    }, 1000);
+                } else {
+                    importStatus.textContent = 'Sinkronisasi gagal!';
+                    setTimeout(() => {
+                        progressModal.classList.add('hidden');
+                        alert('Error: ' + data.message);
+                    }, 1000);
+                }
+            })
+            .catch(error => {
+                clearInterval(interval);
+                progressBar.style.width = '100%';
+                progressText.textContent = '100%';
+                importStatus.textContent = 'Terjadi kesalahan!';
+                setTimeout(() => {
+                    progressModal.classList.add('hidden');
+                    alert('Terjadi kesalahan: ' + error.message);
+                }, 1000);
+            })
+            .finally(() => {
+                // Re-enable button
+                syncGoogleSheetsBtn.disabled = false;
+                syncGoogleSheetsBtn.innerHTML = '<i class="fas fa-sync-alt mr-2"></i>Sync Sekarang';
+            });
+        }
     });
 });
 </script>

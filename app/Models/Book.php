@@ -28,7 +28,7 @@ class Book extends Model
 
     public function getAvailableQuantityAttribute(): int
     {
-        $borrowed = $this->borrowings()->where('status', 'borrowed')->count();
+        $borrowed = $this->borrowings()->where('status', 'borrowed')->sum('quantity');
         return $this->quantity - $borrowed;
     }
 }

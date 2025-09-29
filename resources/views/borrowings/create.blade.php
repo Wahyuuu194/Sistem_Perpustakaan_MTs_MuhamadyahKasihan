@@ -61,6 +61,18 @@
                             </option>
                         @endforeach
                     </select>
+                        <!-- Input jumlah buku yang akan dipinjam -->
+                        <div class="mt-4">
+                            <label for="jumlah" class="block text-sm font-medium text-gray-700 mb-2">Jumlah Buku yang Akan Dipinjam</label>
+                            <input type="number" name="jumlah" id="jumlah" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" min="1" value="{{ old('jumlah', 1) }}" required>
+                            <div class="flex items-center justify-between mt-1">
+                                <small id="jumlah-info" class="text-xs text-gray-500">Maksimal sesuai stok tersedia.</small>
+                                <span id="stok-tersedia" class="text-xs font-semibold text-blue-600">Stok tersedia: -</span>
+                            </div>
+                            @error('jumlah')
+                                <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
+                            @enderror
+                        </div>
                     
                     <!-- Selected Book Info -->
                     <div id="selected_book_info" class="mt-3 p-3 bg-blue-50 border border-blue-200 rounded-md" style="display: none;">
@@ -349,6 +361,33 @@ document.addEventListener('DOMContentLoaded', function() {
     let scanning = false;
     let currentScanType = 'student'; // 'student' or 'teacher'
 
+    // Function to play success sound - Quick Beep Scanner
+    function playSuccessSound() {
+        try {
+            const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            const oscillator = audioContext.createOscillator();
+            const gainNode = audioContext.createGain();
+            
+            oscillator.connect(gainNode);
+            gainNode.connect(audioContext.destination);
+            
+            // High frequency, very short duration - Quick Beep
+            oscillator.frequency.setValueAtTime(1500, audioContext.currentTime); // 1500Hz
+            oscillator.type = 'square'; // Square wave for electronic sound
+            
+            // Very quick attack and decay
+            gainNode.gain.setValueAtTime(0, audioContext.currentTime);
+            gainNode.gain.linearRampToValueAtTime(0.5, audioContext.currentTime + 0.003); // Very quick attack
+            gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.05); // Quick decay
+            
+            oscillator.start(audioContext.currentTime);
+            oscillator.stop(audioContext.currentTime + 0.05); // Very short duration
+            
+        } catch (error) {
+            console.log('Audio not supported:', error);
+        }
+    }
+
     // Book search functionality
     bookSearch.addEventListener('input', function() {
         const searchTerm = this.value.toLowerCase().trim();
@@ -482,8 +521,37 @@ document.addEventListener('DOMContentLoaded', function() {
             }
             
             selectedBookInfo.style.display = 'block';
+
+                // Update max jumlah sesuai stok buku
+                const jumlahInput = document.getElementById('jumlah');
+                const jumlahInfo = document.getElementById('jumlah-info');
+            const stokTersedia = document.getElementById('stok-tersedia');
+                if (jumlahInput) {
+                    jumlahInput.max = available > 0 ? available : 1;
+                    if (parseInt(jumlahInput.value) > available) {
+                        jumlahInput.value = available;
+                    }
+                    jumlahInfo.textContent = `Maksimal peminjaman: ${available} buku.`;
+                if (stokTersedia) {
+                    stokTersedia.textContent = `Stok tersedia: ${available}`;
+                    stokTersedia.className = 'text-xs font-semibold ' + (available > 5 ? 'text-green-600' : available > 0 ? 'text-yellow-600' : 'text-red-600');
+                }
+                }
         } else {
             selectedBookInfo.style.display = 'none';
+                // Reset max jumlah
+                const jumlahInput = document.getElementById('jumlah');
+                const jumlahInfo = document.getElementById('jumlah-info');
+            const stokTersedia = document.getElementById('stok-tersedia');
+                if (jumlahInput) {
+                    jumlahInput.max = 1;
+                    jumlahInput.value = 1;
+                    jumlahInfo.textContent = 'Maksimal sesuai stok tersedia.';
+                if (stokTersedia) {
+                    stokTersedia.textContent = 'Stok tersedia: -';
+                    stokTersedia.className = 'text-xs font-semibold text-blue-600';
+                }
+                }
         }
     });
     
@@ -633,6 +701,9 @@ document.addEventListener('DOMContentLoaded', function() {
             .then(response => response.json())
             .then(data => {
                 if (data.success) {
+                    // Play success sound
+                    playSuccessSound();
+                    
                     // Find and select the member in dropdown
                     const options = memberSelect.querySelectorAll('option[data-member-id]');
                     for (let option of options) {
@@ -665,6 +736,9 @@ document.addEventListener('DOMContentLoaded', function() {
             .then(response => response.json())
             .then(data => {
                 if (data.success) {
+                    // Play success sound
+                    playSuccessSound();
+                    
                     // Find and select the teacher in dropdown
                     const options = teacherSelect.querySelectorAll('option[data-teacher-id]');
                     for (let option of options) {

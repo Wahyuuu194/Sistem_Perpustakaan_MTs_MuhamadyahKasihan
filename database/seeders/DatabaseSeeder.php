@@ -54,7 +54,6 @@ class DatabaseSeeder extends Seeder
         $members = [
             [
                 'name' => 'Ahmad Fadillah',
-                'email' => 'ahmad@example.com',
                 'phone' => '081234567890',
                 'address' => 'Jl. Sudirman No. 123, Jakarta',
                 'birth_date' => '1995-03-15',
@@ -65,7 +64,6 @@ class DatabaseSeeder extends Seeder
             ],
             [
                 'name' => 'Siti Nurhaliza',
-                'email' => 'siti@example.com',
                 'phone' => '081234567891',
                 'address' => 'Jl. Thamrin No. 456, Jakarta',
                 'birth_date' => '1998-07-22',

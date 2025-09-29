@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Book;
+use App\Services\GoogleSheetsSyncService;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
 use Illuminate\Http\RedirectResponse;
@@ -124,5 +125,37 @@ class BookController extends Controller
 
         return redirect()->route('books.index')
             ->with('success', 'Buku berhasil dihapus!');
+    }
+
+    /**
+     * Sync books from Google Sheets
+     */
+    public function syncFromGoogleSheets(Request $request)
+    {
+        try {
+            $syncService = new GoogleSheetsSyncService();
+            $result = $syncService->syncBooks();
+            
+            $message = "Sync buku berhasil! ";
+            $message .= "Imported: {$result['imported']}, ";
+            $message .= "Updated: {$result['updated']}, ";
+            $message .= "Total processed: {$result['total_processed']}";
+            
+            if (!empty($result['errors'])) {
+                $message .= ". Errors: " . count($result['errors']);
+            }
+            
+            return response()->json([
+                'success' => true,
+                'message' => $message,
+                'data' => $result
+            ]);
+            
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Sync gagal: ' . $e->getMessage()
+            ], 500);
+        }
     }
 }

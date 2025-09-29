@@ -12,9 +12,9 @@ class DashboardController extends Controller
 {
     public function index()
     {
-        $totalBooks = Book::count();
-        $totalMembers = Member::count();
-        $totalTeachers = Teacher::count();
+        $totalBooks = Book::where('quantity', '>', 0)->count();
+        $totalMembers = Member::where('status', 'active')->count();
+        $totalTeachers = Teacher::where('status', 'active')->count();
         $totalBorrowed = Borrowing::where('status', 'borrowed')->count();
         $overdueBooks = Borrowing::where('status', 'borrowed')
             ->where('due_date', '<', now())

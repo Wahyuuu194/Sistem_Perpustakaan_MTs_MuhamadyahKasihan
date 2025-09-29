@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Member;
+use App\Services\GoogleSheetsSyncService;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
 use Illuminate\Http\RedirectResponse;
@@ -107,71 +108,27 @@ class MemberController extends Controller
     }
 
 
-    public function importFromCsv(Request $request)
-    {
-        $request->validate([
-            'csv_file' => 'required|file|mimes:csv,txt'
-        ]);
-        
-        $file = $request->file('csv_file');
-        $csvData = array_map('str_getcsv', file($file->getPathname()));
-        
-        // Skip header row
-        $csvData = array_slice($csvData, 1);
-        
-        $imported = 0;
-        $skipped = 0;
-        $errors = [];
-        
-        foreach ($csvData as $index => $row) {
-            try {
-                $nisn = $row[1]; // NISN di kolom B
-                $nama = $row[2]; // Nama di kolom C
-                $kelas = $row[3]; // Kelas di kolom D
-                
-                // Skip jika data kosong
-                if (empty($nisn) || empty($nama)) {
-                    continue;
-                }
-                
-                // Cek apakah sudah ada
-                $existingMember = Member::where('member_id', $nisn)->first();
-                
-                if (!$existingMember) {
-                    Member::create([
-                        'member_id' => $nisn,
-                        'name' => $nama,
-                        'kelas' => $kelas,
-                        'phone' => null,
-                        'address' => null,
-                        'birth_date' => null,
-                        'registration_date' => now(),
-                        'status' => 'active',
-                    ]);
-                    $imported++;
-                } else {
-                    $skipped++;
-                }
-            } catch (\Exception $e) {
-                $errors[] = "Baris " . ($index + 2) . ": " . $e->getMessage();
-            }
-        }
-        
-        return response()->json([
-            'success' => true,
-            'message' => "Berhasil import {$imported} data, {$skipped} data sudah ada",
-            'imported' => $imported,
-            'skipped' => $skipped,
-            'errors' => $errors
-        ]);
-    }
 
 
 
     public function checkNisn(Request $request)
     {
         $nisn = $request->input('nisn');
+        
+        // Cari member dengan NISN yang diberikan
         $member = Member::where('member_id', $nisn)->first();
+        
+        // Jika tidak ditemukan, coba dengan menghilangkan leading zero
+        if (!$member && str_starts_with($nisn, '0')) {
+            $nisnWithoutZero = ltrim($nisn, '0');
+            $member = Member::where('member_id', $nisnWithoutZero)->first();
+        }
+        
+        // Jika masih tidak ditemukan, coba dengan menambahkan leading zero
+        if (!$member && !str_starts_with($nisn, '0')) {
+            $nisnWithZero = '0' . $nisn;
+            $member = Member::where('member_id', $nisnWithZero)->first();
+        }
         
         if ($member) {
             return response()->json([
@@ -185,4 +142,34 @@ class MemberController extends Controller
             'message' => 'Data siswa tidak ditemukan'
         ]);
     }
+
+    public function syncFromGoogleSheets(Request $request)
+    {
+        try {
+            $syncService = new GoogleSheetsSyncService();
+            $result = $syncService->syncStudents();
+            
+            $message = "Sync berhasil! ";
+            $message .= "Imported: {$result['imported']}, ";
+            $message .= "Updated: {$result['updated']}, ";
+            $message .= "Total processed: {$result['total_processed']}";
+            
+            if (!empty($result['errors'])) {
+                $message .= ". Errors: " . count($result['errors']);
+            }
+            
+            return response()->json([
+                'success' => true,
+                'message' => $message,
+                'data' => $result
+            ]);
+            
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Sync gagal: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
 }

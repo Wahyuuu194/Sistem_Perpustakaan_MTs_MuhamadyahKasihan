@@ -21,17 +21,26 @@ Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
 // Import routes (no auth required for testing)
 Route::get('/import-books', function() {
-    return view('books.import-simple');
+    return view('books.import-multiple');
 })->name('import-books');
 Route::post('/import-books', [BookImportController::class, 'importExcel'])->name('import-books');
+Route::post('/import-books-multiple', [BookImportController::class, 'importMultipleFiles'])->name('import-books-multiple');
 Route::post('/preview-books', [BookImportController::class, 'previewExcel'])->name('preview-books');
+
+// Books sync route (no auth required for testing)
+Route::post('books/sync-google-sheets', [App\Http\Controllers\BookController::class, 'syncFromGoogleSheets'])->name('books.sync-google-sheets');
 
 // Check books route
 Route::get('/check-books', [App\Http\Controllers\CheckBooksController::class, 'index'])->name('check-books');
 
 // Import routes (no auth required for testing)
 Route::get('/members/import', [MemberController::class, 'showImportForm'])->name('members.import');
+Route::post('members/sync-google-sheets', [MemberController::class, 'syncFromGoogleSheets'])->name('members.sync-google-sheets');
+
 Route::get('/teachers/import', [TeacherController::class, 'showImportForm'])->name('teachers.import');
+Route::post('teachers/sync-google-sheets', [TeacherController::class, 'syncFromGoogleSheets'])->name('teachers.sync-google-sheets');
+
+
 
 // Protected Routes
 Route::middleware('auth')->group(function () {
@@ -43,13 +52,16 @@ Route::middleware('auth')->group(function () {
     Route::resource('borrowings', BorrowingController::class);
     
     Route::patch('borrowings/{borrowing}/return', [BorrowingController::class, 'return'])->name('borrowings.return');
-    Route::post('members/import-csv', [MemberController::class, 'importFromCsv'])->name('members.import-csv');
     Route::post('members/check-nisn', [MemberController::class, 'checkNisn'])->name('members.check-nisn');
-    Route::post('teachers/import-csv', [TeacherController::class, 'importFromCsv'])->name('teachers.import-csv');
     Route::post('teachers/check-nip', [TeacherController::class, 'checkNip'])->name('teachers.check-nip');
     
-    // Book Import Routes
+    // Book Import Routes (protected)
     Route::get('books/import-excel', [BookImportController::class, 'showImportForm'])->name('books.import-excel');
     Route::post('books/import-excel', [BookImportController::class, 'importExcel'])->name('books.import-excel');
     Route::post('books/preview-excel', [BookImportController::class, 'previewExcel'])->name('books.preview-excel');
+    
+    // ISBN Management Routes
+    Route::get('books/isbn-manager', function() {
+        return view('books.isbn-manager');
+    })->name('books.isbn-manager');
 });

@@ -14,6 +14,7 @@ class Borrowing extends Model
         'book_id',
         'member_id',
         'teacher_id',
+        'quantity',
         'borrow_date',
         'due_date',
         'return_date',

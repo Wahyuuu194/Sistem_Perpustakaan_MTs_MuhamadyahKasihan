@@ -53,6 +53,15 @@
                         </div>
                         
                         <div>
+                            <span class="text-sm font-medium text-gray-500">Jumlah Buku:</span>
+                            <p class="text-lg text-gray-900">
+                                <span class="px-3 py-1 text-sm font-medium rounded-full bg-blue-100 text-blue-800">
+                                    {{ $borrowing->quantity }} buku
+                                </span>
+                            </p>
+                        </div>
+                        
+                        <div>
                             <span class="text-sm font-medium text-gray-500">Jatuh Tempo:</span>
                             <p class="text-lg text-gray-900">{{ $borrowing->due_date->format('d/m/Y') }}</p>
                         </div>

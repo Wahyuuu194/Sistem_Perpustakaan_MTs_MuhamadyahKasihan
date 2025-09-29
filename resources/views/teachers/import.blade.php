@@ -7,7 +7,6 @@
         <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 mb-6">
             <div>
                 <h1 class="text-2xl sm:text-3xl font-bold text-gray-900">Import Data Guru</h1>
-                <p class="text-gray-600 mt-1">Import data guru dari file CSV</p>
             </div>
             <div class="flex flex-col sm:flex-row gap-2">
                 <a href="{{ route('teachers.index') }}" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition text-center">
@@ -16,75 +15,54 @@
             </div>
         </div>
 
-        <!-- Import Instructions -->
+        <!-- Sync from Google Sheets -->
+        <div class="bg-green-50 border border-green-200 rounded-lg p-4 mb-6">
+            <div class="flex">
+                <div class="flex-shrink-0">
+                    <i class="fas fa-sync-alt text-green-500 text-lg"></i>
+                </div>
+                <div class="ml-3 flex-1">
+                    <h3 class="text-sm font-semibold text-green-800 mb-2">Klik Sync untuk memperbarui data</h3>
+                    <div class="text-sm text-green-700 mb-3">
+                        <p>Sinkronkan data Guru terbaru</p>
+                    </div>
+                    <button type="button" id="syncFromSheets" class="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition font-medium">
+                        <i class="fas fa-sync-alt mr-2"></i>Singkronkan
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Info Box -->
         <div class="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
             <div class="flex">
                 <div class="flex-shrink-0">
                     <i class="fas fa-info-circle text-blue-500 text-lg"></i>
                 </div>
                 <div class="ml-3">
-                    <h3 class="text-sm font-semibold text-blue-800 mb-2">Panduan Import Data Guru</h3>
+                    <h3 class="text-sm font-semibold text-blue-800 mb-2">Informasi Sync Data Guru</h3>
                     <div class="text-sm text-blue-700">
-                        <p class="mb-2">Format file CSV yang didukung:</p>
+                        <p class="mb-2">Data guru akan di-sync langsung dari Google Sheets dengan format:</p>
                         <ul class="list-disc list-inside space-y-1">
                             <li><strong>Kolom 1:</strong> NIP (Nomor Induk Pegawai)</li>
                             <li><strong>Kolom 2:</strong> Nama Lengkap</li>
-                            <li><strong>Kolom 3:</strong> Mata Pelajaran</li>
-                            <li><strong>Kolom 4:</strong> Telepon (opsional)</li>
-                            <li><strong>Kolom 5:</strong> Email (opsional)</li>
+                            <li><strong>Kolom 3:</strong> Keterangan</li>
                         </ul>
                         <p class="mt-2 text-xs text-blue-600">
-                            <i class="fas fa-exclamation-triangle mr-1"></i>
-                            <strong>Catatan:</strong> Pastikan file CSV menggunakan koma (,) sebagai pemisah dan tidak ada header baris pertama
+                            <i class="fas fa-sync-alt mr-1"></i>
+                            <strong>Catatan:</strong> Data yang sudah ada akan diupdate, data baru akan ditambahkan otomatis
                         </p>
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- Import Form -->
-        <form id="importForm" enctype="multipart/form-data" class="space-y-6">
-            @csrf
-            
-            <!-- File Upload -->
-            <div>
-                <label for="csv_file" class="block text-sm font-medium text-gray-700 mb-2">
-                    Pilih File CSV
-                </label>
-                <input type="file" id="csv_file" name="csv_file" accept=".csv" required
-                    class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100">
-                <p class="text-xs text-gray-500 mt-1">
-                    Format yang didukung: .csv
-                </p>
-            </div>
-
-            <!-- Import Options -->
-            <div>
-                <h3 class="text-lg font-semibold text-gray-900 mb-4">Opsi Import</h3>
-                <div class="space-y-3">
-                    <label class="flex items-center">
-                        <input type="checkbox" name="skip_duplicates" value="1" checked
-                            class="mr-3 text-blue-600 focus:ring-blue-500">
-                        <span class="text-sm text-gray-700">Lewati guru yang sudah ada (berdasarkan NIP)</span>
-                    </label>
-                    <label class="flex items-center">
-                        <input type="checkbox" name="update_existing" value="1"
-                            class="mr-3 text-blue-600 focus:ring-blue-500">
-                        <span class="text-sm text-gray-700">Update data guru yang sudah ada</span>
-                    </label>
-                </div>
-            </div>
-
-            <!-- Action Buttons -->
-            <div class="flex justify-end space-x-3 pt-6 border-t border-gray-200">
-                <a href="{{ route('teachers.index') }}" class="px-6 py-2 text-gray-700 bg-gray-200 rounded-lg hover:bg-gray-300 transition font-medium">
-                    <i class="fas fa-times mr-2"></i>Batal
-                </a>
-                <button type="submit" id="submitImport" class="px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition font-medium">
-                    <i class="fas fa-upload mr-2"></i>Import Data
-                </button>
-            </div>
-        </form>
+        <!-- Action Buttons -->
+        <div class="flex justify-end space-x-3 pt-6 border-t border-gray-200">
+            <a href="{{ route('teachers.index') }}" class="px-6 py-2 text-gray-700 bg-gray-200 rounded-lg hover:bg-gray-300 transition font-medium">
+                <i class="fas fa-arrow-left mr-2"></i>Kembali ke Daftar Guru
+            </a>
+        </div>
     </div>
 </div>
 
@@ -117,88 +95,72 @@
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    const importForm = document.getElementById('importForm');
     const progressModal = document.getElementById('progressModal');
     const progressBar = document.getElementById('progress-bar');
     const progressText = document.getElementById('progress-text');
     const importStatus = document.getElementById('import-status');
-    const submitImport = document.getElementById('submitImport');
 
-    importForm.addEventListener('submit', function(e) {
-        e.preventDefault();
-        
-        const fileInput = document.getElementById('csv_file');
-        if (!fileInput.files.length) {
-            alert('Pilih file CSV terlebih dahulu');
-            return;
-        }
-
-        // Show progress modal
-        progressModal.classList.remove('hidden');
-        
-        const formData = new FormData(this);
-        submitImport.disabled = true;
-        submitImport.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Importing...';
-
-        // Simulate progress
-        let progress = 0;
-        const interval = setInterval(() => {
-            progress += Math.random() * 15;
-            if (progress > 100) progress = 100;
+    // Sync from Google Sheets functionality
+    const syncFromSheets = document.getElementById('syncFromSheets');
+    syncFromSheets.addEventListener('click', function() {
+        if (confirm('Apakah Anda yakin ingin sync data guru dari Google Sheets? Data yang sudah ada akan diupdate.')) {
+            // Show progress modal
+            progressModal.classList.remove('hidden');
+            importStatus.textContent = 'Mengambil data dari Google Sheets...';
             
-            progressBar.style.width = progress + '%';
-            progressText.textContent = Math.round(progress) + '%';
-            
-            if (progress >= 100) {
+            syncFromSheets.disabled = true;
+            syncFromSheets.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Syncing...';
+
+            // Simulate progress
+            let progress = 0;
+            const interval = setInterval(() => {
+                progress += Math.random() * 20;
+                if (progress > 90) progress = 90; // Don't complete until response
+                
+                progressBar.style.width = progress + '%';
+                progressText.textContent = Math.round(progress) + '%';
+            }, 200);
+
+            // Make sync request
+            fetch('{{ route("teachers.sync-google-sheets") }}', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
                 clearInterval(interval);
-                importStatus.textContent = 'Import selesai!';
-                setTimeout(() => {
-                    progressModal.classList.add('hidden');
-                    // Redirect to teachers index
-                    window.location.href = '{{ route("teachers.index") }}';
-                }, 1000);
-            }
-        }, 200);
-
-        // Submit form
-        fetch('{{ route("teachers.import-csv") }}', {
-            method: 'POST',
-            body: formData,
-            headers: {
-                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
-            }
-        })
-        .then(response => response.json())
-        .then(data => {
-            clearInterval(interval);
-            progressBar.style.width = '100%';
-            progressText.textContent = '100%';
-            
-            if (data.success) {
-                importStatus.textContent = `Import berhasil! ${data.message}`;
-                setTimeout(() => {
-                    progressModal.classList.add('hidden');
-                    window.location.href = '{{ route("teachers.index") }}';
-                }, 2000);
-            } else {
-                importStatus.textContent = 'Import gagal: ' + data.message;
+                progressBar.style.width = '100%';
+                progressText.textContent = '100%';
+                
+                if (data.success) {
+                    importStatus.textContent = data.message;
+                    setTimeout(() => {
+                        progressModal.classList.add('hidden');
+                        window.location.href = '{{ route("teachers.index") }}';
+                    }, 2000);
+                } else {
+                    importStatus.textContent = 'Sync gagal: ' + data.message;
+                    setTimeout(() => {
+                        progressModal.classList.add('hidden');
+                    }, 3000);
+                }
+            })
+            .catch(error => {
+                clearInterval(interval);
+                console.error('Error:', error);
+                importStatus.textContent = 'Terjadi kesalahan saat sync data';
                 setTimeout(() => {
                     progressModal.classList.add('hidden');
                 }, 3000);
-            }
-        })
-        .catch(error => {
-            clearInterval(interval);
-            console.error('Error:', error);
-            importStatus.textContent = 'Terjadi kesalahan saat import data';
-            setTimeout(() => {
-                progressModal.classList.add('hidden');
-            }, 3000);
-        })
-        .finally(() => {
-            submitImport.disabled = false;
-            submitImport.innerHTML = '<i class="fas fa-upload mr-2"></i>Import Data';
-        });
+            })
+            .finally(() => {
+                syncFromSheets.disabled = false;
+                syncFromSheets.innerHTML = '<i class="fas fa-sync-alt mr-2"></i>Sync dari Google Sheets';
+            });
+        }
     });
 });
 </script>

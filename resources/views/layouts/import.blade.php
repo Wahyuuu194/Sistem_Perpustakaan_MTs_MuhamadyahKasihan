@@ -20,9 +20,6 @@
                     <a href="{{ route('import-books') }}" class="hover:text-blue-200 transition">
                         <i class="fas fa-file-import mr-2"></i>Import Buku
                     </a>
-                    <a href="{{ route('check-books') }}" class="hover:text-blue-200 transition">
-                        <i class="fas fa-search mr-2"></i>Cek Data Buku
-                    </a>
                     <a href="{{ route('members.import') }}" class="hover:text-blue-200 transition">
                         <i class="fas fa-file-import mr-2"></i>Import Murid
                     </a>
@@ -61,4 +58,6 @@
     </footer>
 </body>
 </html>
+
+
 
