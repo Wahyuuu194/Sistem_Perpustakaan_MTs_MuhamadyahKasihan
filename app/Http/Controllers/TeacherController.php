@@ -3,15 +3,36 @@
 namespace App\Http\Controllers;
 
 use App\Models\Teacher;
+use App\Services\GoogleSheetsSyncService;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
 use Illuminate\Http\RedirectResponse;
 
 class TeacherController extends Controller
 {
-    public function index(): View
+    public function showImportForm(): View
     {
-        $teachers = Teacher::orderBy('name')->paginate(15);
+        return view('teachers.import');
+    }
+
+    public function index(Request $request): View
+    {
+        $query = Teacher::query();
+        
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->where(function($q) use ($search) {
+                $q->where('name', 'like', "%{$search}%")
+                  ->orWhere('teacher_id', 'like', "%{$search}%")
+                  ->orWhere('subject', 'like', "%{$search}%");
+            });
+        }
+        
+        if ($request->filled('status') && $request->status !== '') {
+            $query->where('status', $request->status);
+        }
+        
+        $teachers = $query->orderBy('name')->paginate(15);
         return view('teachers.index', compact('teachers'));
     }
 
@@ -95,63 +116,34 @@ class TeacherController extends Controller
         ]);
     }
 
-    public function importFromCsv(Request $request)
+
+    public function syncFromGoogleSheets(Request $request)
     {
-        $request->validate([
-            'csv_file' => 'required|file|mimes:csv,txt'
-        ]);
-        
-        $file = $request->file('csv_file');
-        $csvData = array_map('str_getcsv', file($file->getPathname()));
-        
-        // Skip header row
-        $csvData = array_slice($csvData, 1);
-        
-        $imported = 0;
-        $skipped = 0;
-        $errors = [];
-        
-        foreach ($csvData as $index => $row) {
-            try {
-                $nip = $row[0]; // NIP di kolom A
-                $nama = $row[1]; // Nama di kolom B
-                $subject = $row[2] ?? null; // Mata pelajaran di kolom C (opsional)
-                $phone = $row[3] ?? null; // Telepon di kolom D (opsional)
-                
-                // Skip jika data kosong
-                if (empty($nip) || empty($nama)) {
-                    continue;
-                }
-                
-                // Cek apakah sudah ada
-                $existingTeacher = Teacher::where('teacher_id', $nip)->first();
-                
-                if (!$existingTeacher) {
-                    Teacher::create([
-                        'teacher_id' => $nip,
-                        'name' => $nama,
-                        'subject' => $subject,
-                        'phone' => $phone,
-                        'address' => null,
-                        'birth_date' => null,
-                        'registration_date' => now(),
-                        'status' => 'active',
-                    ]);
-                    $imported++;
-                } else {
-                    $skipped++;
-                }
-            } catch (\Exception $e) {
-                $errors[] = "Baris " . ($index + 2) . ": " . $e->getMessage();
+        try {
+            $syncService = new GoogleSheetsSyncService();
+            $result = $syncService->syncTeachers();
+            
+            $message = "Sync berhasil! ";
+            $message .= "Imported: {$result['imported']}, ";
+            $message .= "Updated: {$result['updated']}, ";
+            $message .= "Total processed: {$result['total_processed']}";
+            
+            if (!empty($result['errors'])) {
+                $message .= ". Errors: " . count($result['errors']);
             }
+            
+            return response()->json([
+                'success' => true,
+                'message' => $message,
+                'data' => $result
+            ]);
+            
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Sync gagal: ' . $e->getMessage()
+            ], 500);
         }
-        
-        return response()->json([
-            'success' => true,
-            'message' => "Berhasil import {$imported} data, {$skipped} data sudah ada",
-            'imported' => $imported,
-            'skipped' => $skipped,
-            'errors' => $errors
-        ]);
     }
+
 }

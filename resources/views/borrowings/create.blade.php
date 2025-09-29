@@ -1,12 +1,12 @@
 @extends('layouts.app')
 
 @section('content')
-<div class="max-w-2xl mx-auto py-6">
-    <div class="bg-white rounded-lg shadow p-6">
-        <div class="flex items-center justify-between mb-6">
-            <!-- <h1 class="text-2xl font-bold text-gray-900">Buat Peminjaman Baru</h1> -->
-            <a href="{{ route('borrowings.index') }}" class="text-blue-600 hover:text-blue-800">
-                <i class="fas fa-arrow-left mr-2"></i>Kembali 
+<div class="max-w-2xl mx-auto py-4 sm:py-6 px-4 sm:px-0">
+    <div class="bg-white rounded-lg shadow p-4 sm:p-6">
+        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
+            <h1 class="text-xl sm:text-2xl font-bold text-gray-900">Buat Peminjaman Baru</h1>
+            <a href="{{ route('borrowings.index') }}" class="text-blue-600 hover:text-blue-800 text-sm sm:text-base">
+                <i class="fas fa-arrow-left mr-1 sm:mr-2"></i>Kembali 
             </a>
         </div>
 
@@ -24,7 +24,7 @@
                     
                     <!-- Search Input -->
                     <div class="relative mb-3">
-                        <input type="text" id="book_search" placeholder="Cari buku berdasarkan judul, pengarang, atau ISBN..." 
+                        <input type="text" id="book_search" placeholder="Cari buku berdasarkan judul, pengarang, kategori, atau ISBN..." 
                             class="w-full px-3 py-2 pl-10 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
                         <div class="absolute left-3 top-2.5 text-gray-400">
                             <i class="fas fa-search"></i>
@@ -54,12 +54,25 @@
                                 data-author="{{ $book->author }}"
                                 data-isbn="{{ $book->isbn }}"
                                 data-kelas="{{ $book->kelas }}"
+                                data-category="{{ $book->category }}"
                                 data-available="{{ $book->available_quantity }}"
-                                data-search="{{ strtolower($book->title . ' ' . $book->author . ' ' . $book->isbn . ' ' . $book->kelas) }}">
+                                data-search="{{ strtolower($book->title . ' ' . $book->author . ' ' . $book->isbn . ' ' . $book->kelas . ' ' . $book->category) }}">
                                 {{ $book->title }}@if($book->kelas) [{{ $book->kelas }}]@endif - {{ $book->author }} (Stok: {{ $book->available_quantity }})
                             </option>
                         @endforeach
                     </select>
+                        <!-- Input jumlah buku yang akan dipinjam -->
+                        <div class="mt-4">
+                            <label for="jumlah" class="block text-sm font-medium text-gray-700 mb-2">Jumlah Buku yang Akan Dipinjam</label>
+                            <input type="number" name="jumlah" id="jumlah" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" min="1" value="{{ old('jumlah', 1) }}" required>
+                            <div class="flex items-center justify-between mt-1">
+                                <small id="jumlah-info" class="text-xs text-gray-500">Maksimal sesuai stok tersedia.</small>
+                                <span id="stok-tersedia" class="text-xs font-semibold text-blue-600">Stok tersedia: -</span>
+                            </div>
+                            @error('jumlah')
+                                <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
+                            @enderror
+                        </div>
                     
                     <!-- Selected Book Info -->
                     <div id="selected_book_info" class="mt-3 p-3 bg-blue-50 border border-blue-200 rounded-md" style="display: none;">
@@ -70,6 +83,7 @@
                                 <div class="text-sm text-blue-700">
                                     <p><strong>Judul:</strong> <span id="selected_title"></span></p>
                                     <p><strong>Pengarang:</strong> <span id="selected_author"></span></p>
+                                    <p><strong>Kategori:</strong> <span id="selected_category"></span></p>
                                     <p><strong>ISBN:</strong> <span id="selected_isbn"></span></p>
                                     <p><strong>Kelas:</strong> <span id="selected_kelas"></span></p>
                                     <p><strong>Stok Tersedia:</strong> <span id="selected_available" class="font-semibold"></span></p>
@@ -94,8 +108,8 @@
                 <!-- Peminjam Type Selection -->
                 <div class="mb-6">
                     <label class="block text-sm font-medium text-gray-700 mb-3">Jenis Peminjam</label>
-                    <div class="flex space-x-6">
-                        <label class="flex items-center p-3 border-2 border-green-200 rounded-lg cursor-pointer hover:bg-green-50 transition">
+                    <div class="flex flex-col sm:flex-row gap-3 sm:gap-6">
+                        <label class="flex items-center p-3 border-2 border-green-200 rounded-lg cursor-pointer hover:bg-green-50 transition flex-1">
                             <input type="radio" name="borrower_type" value="student" id="borrower_student" checked
                                 class="mr-3 text-green-600 focus:ring-green-500">
                             <div class="flex items-center">
@@ -103,7 +117,7 @@
                                 <span class="text-sm font-medium text-gray-700">Siswa</span>
                             </div>
                         </label>
-                        <label class="flex items-center p-3 border-2 border-blue-200 rounded-lg cursor-pointer hover:bg-blue-50 transition">
+                        <label class="flex items-center p-3 border-2 border-blue-200 rounded-lg cursor-pointer hover:bg-blue-50 transition flex-1">
                             <input type="radio" name="borrower_type" value="teacher" id="borrower_teacher"
                                 class="mr-3 text-blue-600 focus:ring-blue-500">
                             <div class="flex items-center">
@@ -124,16 +138,16 @@
                     <!-- Scan QR Code Button for Student -->
                     <div class="mb-4">
                         <div class="bg-white border border-green-200 rounded-lg p-3">
-                            <div class="flex items-center justify-between gap-4">
+                            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
                                 <div class="flex items-center flex-1">
-                                    <i class="fas fa-qrcode text-green-600 text-lg mr-3"></i>
-                                    <div class="flex-1">
+                                    <i class="fas fa-qrcode text-green-600 text-lg mr-3 flex-shrink-0"></i>
+                                    <div class="flex-1 min-w-0">
                                         <h3 class="text-sm font-semibold text-green-800 mb-1">Scan QR Code Kartu Akses Siswa</h3>
                                         <p class="text-xs text-green-600">Gunakan kamera untuk scan QR code dari kartu akses siswa</p>
                                     </div>
                                 </div>
                                 <div class="flex-shrink-0">
-                                    <button type="button" id="scanMemberBtn" class="px-3 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 transition font-medium text-sm">
+                                    <button type="button" id="scanMemberBtn" class="w-full sm:w-auto px-3 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 transition font-medium text-sm">
                                         <i class="fas fa-camera mr-1"></i>Scan QR
                                     </button>
                                 </div>
@@ -172,16 +186,16 @@
                     <!-- Scan QR Code Button for Teacher -->
                     <div class="mb-4">
                         <div class="bg-white border border-blue-200 rounded-lg p-3">
-                            <div class="flex items-center justify-between gap-4">
+                            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
                                 <div class="flex items-center flex-1">
-                                    <i class="fas fa-qrcode text-blue-600 text-lg mr-3"></i>
-                                    <div class="flex-1">
+                                    <i class="fas fa-qrcode text-blue-600 text-lg mr-3 flex-shrink-0"></i>
+                                    <div class="flex-1 min-w-0">
                                         <h3 class="text-sm font-semibold text-blue-800 mb-1">Scan QR Code Kartu Akses Guru</h3>
                                         <p class="text-xs text-blue-600">Gunakan kamera untuk scan QR code dari kartu akses guru</p>
                                     </div>
                                 </div>
                                 <div class="flex-shrink-0">
-                                    <button type="button" id="scanTeacherBtn" class="px-3 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition font-medium text-sm">
+                                    <button type="button" id="scanTeacherBtn" class="w-full sm:w-auto px-3 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition font-medium text-sm">
                                         <i class="fas fa-camera mr-1"></i>Scan QR
                                     </button>
                                 </div>
@@ -218,7 +232,7 @@
                     Periode Peminjaman
                 </h3>
                 <div class="bg-gray-50 rounded-lg p-4">
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
                         <div>
                             <label for="borrow_date" class="block text-sm font-medium text-gray-700 mb-2">Tanggal Pinjam</label>
                             <input type="date" name="borrow_date" id="borrow_date" value="{{ old('borrow_date', date('Y-m-d')) }}" required
@@ -263,12 +277,12 @@
             </div>
 
             <!-- Action Buttons -->
-            <div class="flex justify-end space-x-3 pt-6 border-t border-gray-200">
-                <a href="{{ route('borrowings.index') }}" class="px-6 py-2 text-gray-700 bg-gray-200 rounded-lg hover:bg-gray-300 transition font-medium">
-                    <i class="fas fa-times mr-2"></i>Batal
+            <div class="flex flex-col sm:flex-row justify-end gap-3 pt-6 border-t border-gray-200">
+                <a href="{{ route('borrowings.index') }}" class="w-full sm:w-auto px-4 sm:px-6 py-2 text-gray-700 bg-gray-200 rounded-lg hover:bg-gray-300 transition font-medium text-center">
+                    <i class="fas fa-times mr-1 sm:mr-2"></i>Batal
                 </a>
-                <button type="submit" class="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition font-medium">
-                    <i class="fas fa-save mr-2"></i>Buat Peminjaman
+                <button type="submit" class="w-full sm:w-auto px-4 sm:px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition font-medium">
+                    <i class="fas fa-save mr-1 sm:mr-2"></i>Buat Peminjaman
                 </button>
             </div>
         </form>
@@ -276,14 +290,14 @@
 </div>
 
 <!-- QR Scanner Modal -->
-<div id="qrModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 hidden">
+<div id="qrModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 hidden z-50">
     <div class="flex items-center justify-center min-h-screen p-4">
-        <div class="bg-white rounded-lg shadow-xl max-w-md w-full">
-            <div class="p-6">
+        <div class="bg-white rounded-lg shadow-xl max-w-md w-full mx-4">
+            <div class="p-4 sm:p-6">
                 <div class="flex items-center justify-between mb-4">
                     <h3 class="text-lg font-semibold text-gray-900" id="qrModalTitle">Scan QR Code</h3>
-                    <button type="button" id="closeQrModal" class="text-gray-400 hover:text-gray-600">
-                        <i class="fas fa-times"></i>
+                    <button type="button" id="closeQrModal" class="text-gray-400 hover:text-gray-600 p-1">
+                        <i class="fas fa-times text-lg"></i>
                     </button>
                 </div>
                 
@@ -297,11 +311,11 @@
                         class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
                 </div>
 
-                <div class="flex justify-end space-x-3">
-                    <button type="button" id="cancelQrScan" class="px-4 py-2 text-gray-700 bg-gray-200 rounded-md hover:bg-gray-300 transition">
+                <div class="flex flex-col sm:flex-row justify-end gap-2 sm:gap-3">
+                    <button type="button" id="cancelQrScan" class="w-full sm:w-auto px-4 py-2 text-gray-700 bg-gray-200 rounded-md hover:bg-gray-300 transition">
                         Batal
                     </button>
-                    <button type="button" id="processQrScan" class="px-4 py-2 text-white bg-green-600 rounded-md hover:bg-green-700 transition">
+                    <button type="button" id="processQrScan" class="w-full sm:w-auto px-4 py-2 text-white bg-green-600 rounded-md hover:bg-green-700 transition">
                         Proses Data
                     </button>
                 </div>
@@ -347,6 +361,33 @@ document.addEventListener('DOMContentLoaded', function() {
     let scanning = false;
     let currentScanType = 'student'; // 'student' or 'teacher'
 
+    // Function to play success sound - Quick Beep Scanner
+    function playSuccessSound() {
+        try {
+            const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            const oscillator = audioContext.createOscillator();
+            const gainNode = audioContext.createGain();
+            
+            oscillator.connect(gainNode);
+            gainNode.connect(audioContext.destination);
+            
+            // High frequency, very short duration - Quick Beep
+            oscillator.frequency.setValueAtTime(1500, audioContext.currentTime); // 1500Hz
+            oscillator.type = 'square'; // Square wave for electronic sound
+            
+            // Very quick attack and decay
+            gainNode.gain.setValueAtTime(0, audioContext.currentTime);
+            gainNode.gain.linearRampToValueAtTime(0.5, audioContext.currentTime + 0.003); // Very quick attack
+            gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.05); // Quick decay
+            
+            oscillator.start(audioContext.currentTime);
+            oscillator.stop(audioContext.currentTime + 0.05); // Very short duration
+            
+        } catch (error) {
+            console.log('Audio not supported:', error);
+        }
+    }
+
     // Book search functionality
     bookSearch.addEventListener('input', function() {
         const searchTerm = this.value.toLowerCase().trim();
@@ -373,6 +414,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     id: option.value,
                     title: option.getAttribute('data-title'),
                     author: option.getAttribute('data-author'),
+                    category: option.getAttribute('data-category'),
                     isbn: option.getAttribute('data-isbn'),
                     kelas: option.getAttribute('data-kelas'),
                     available: option.getAttribute('data-available'),
@@ -392,7 +434,7 @@ document.addEventListener('DOMContentLoaded', function() {
                         <div class="flex-1">
                             <h4 class="text-sm font-medium text-gray-900">${book.title}${book.kelas ? ` [${book.kelas}]` : ''}</h4>
                             <p class="text-xs text-gray-600">${book.author}</p>
-                            <p class="text-xs text-gray-500">ISBN: ${book.isbn || 'N/A'}</p>
+                            <p class="text-xs text-gray-500">Kategori: ${book.category || 'N/A'} | ISBN: ${book.isbn || 'N/A'}</p>
                         </div>
                         <div class="text-right">
                             <span class="text-xs font-medium ${parseInt(book.available) > 5 ? 'text-green-600' : parseInt(book.available) > 0 ? 'text-yellow-600' : 'text-red-600'}">
@@ -462,6 +504,7 @@ document.addEventListener('DOMContentLoaded', function() {
             // Show book info
             document.getElementById('selected_title').textContent = selectedOption.getAttribute('data-title') || 'N/A';
             document.getElementById('selected_author').textContent = selectedOption.getAttribute('data-author') || 'N/A';
+            document.getElementById('selected_category').textContent = selectedOption.getAttribute('data-category') || 'N/A';
             document.getElementById('selected_isbn').textContent = selectedOption.getAttribute('data-isbn') || 'N/A';
             document.getElementById('selected_kelas').textContent = selectedOption.getAttribute('data-kelas') || 'Semua Kelas';
             document.getElementById('selected_available').textContent = selectedOption.getAttribute('data-available') || '0';
@@ -478,8 +521,37 @@ document.addEventListener('DOMContentLoaded', function() {
             }
             
             selectedBookInfo.style.display = 'block';
+
+                // Update max jumlah sesuai stok buku
+                const jumlahInput = document.getElementById('jumlah');
+                const jumlahInfo = document.getElementById('jumlah-info');
+            const stokTersedia = document.getElementById('stok-tersedia');
+                if (jumlahInput) {
+                    jumlahInput.max = available > 0 ? available : 1;
+                    if (parseInt(jumlahInput.value) > available) {
+                        jumlahInput.value = available;
+                    }
+                    jumlahInfo.textContent = `Maksimal peminjaman: ${available} buku.`;
+                if (stokTersedia) {
+                    stokTersedia.textContent = `Stok tersedia: ${available}`;
+                    stokTersedia.className = 'text-xs font-semibold ' + (available > 5 ? 'text-green-600' : available > 0 ? 'text-yellow-600' : 'text-red-600');
+                }
+                }
         } else {
             selectedBookInfo.style.display = 'none';
+                // Reset max jumlah
+                const jumlahInput = document.getElementById('jumlah');
+                const jumlahInfo = document.getElementById('jumlah-info');
+            const stokTersedia = document.getElementById('stok-tersedia');
+                if (jumlahInput) {
+                    jumlahInput.max = 1;
+                    jumlahInput.value = 1;
+                    jumlahInfo.textContent = 'Maksimal sesuai stok tersedia.';
+                if (stokTersedia) {
+                    stokTersedia.textContent = 'Stok tersedia: -';
+                    stokTersedia.className = 'text-xs font-semibold text-blue-600';
+                }
+                }
         }
     });
     
@@ -629,6 +701,9 @@ document.addEventListener('DOMContentLoaded', function() {
             .then(response => response.json())
             .then(data => {
                 if (data.success) {
+                    // Play success sound
+                    playSuccessSound();
+                    
                     // Find and select the member in dropdown
                     const options = memberSelect.querySelectorAll('option[data-member-id]');
                     for (let option of options) {
@@ -661,6 +736,9 @@ document.addEventListener('DOMContentLoaded', function() {
             .then(response => response.json())
             .then(data => {
                 if (data.success) {
+                    // Play success sound
+                    playSuccessSound();
+                    
                     // Find and select the teacher in dropdown
                     const options = teacherSelect.querySelectorAll('option[data-teacher-id]');
                     for (let option of options) {

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Book;
+use App\Services\GoogleSheetsSyncService;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
 use Illuminate\Http\RedirectResponse;
@@ -16,8 +17,22 @@ class BookController extends Controller
         if ($request->filled('search')) {
             $search = $request->search;
             $query->where(function($q) use ($search) {
-                $q->where('title', 'like', "%{$search}%")
-                  ->orWhere('author', 'like', "%{$search}%")
+                // Pencarian yang lebih cerdas untuk seri buku
+                if (preg_match('/^(.+?)\s+(\d+)$/', $search, $matches)) {
+                    $baseTitle = $matches[1];
+                    $number = $matches[2];
+                    
+                    // Cari buku dengan judul yang mengandung base title dan nomor yang tepat
+                    $q->where(function($subQ) use ($baseTitle, $number) {
+                        $subQ->where('title', 'like', "%{$baseTitle}%")
+                             ->where('title', 'like', "%{$number}%");
+                    });
+                } else {
+                    // Pencarian normal
+                    $q->where('title', 'like', "%{$search}%");
+                }
+                
+                $q->orWhere('author', 'like', "%{$search}%")
                   ->orWhere('publisher', 'like', "%{$search}%")
                   ->orWhere('category', 'like', "%{$search}%")
                   ->orWhere('kelas', 'like', "%{$search}%")
@@ -110,5 +125,37 @@ class BookController extends Controller
 
         return redirect()->route('books.index')
             ->with('success', 'Buku berhasil dihapus!');
+    }
+
+    /**
+     * Sync books from Google Sheets
+     */
+    public function syncFromGoogleSheets(Request $request)
+    {
+        try {
+            $syncService = new GoogleSheetsSyncService();
+            $result = $syncService->syncBooks();
+            
+            $message = "Sync buku berhasil! ";
+            $message .= "Imported: {$result['imported']}, ";
+            $message .= "Updated: {$result['updated']}, ";
+            $message .= "Total processed: {$result['total_processed']}";
+            
+            if (!empty($result['errors'])) {
+                $message .= ". Errors: " . count($result['errors']);
+            }
+            
+            return response()->json([
+                'success' => true,
+                'message' => $message,
+                'data' => $result
+            ]);
+            
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Sync gagal: ' . $e->getMessage()
+            ], 500);
+        }
     }
 }

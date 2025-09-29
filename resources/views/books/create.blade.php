@@ -55,14 +55,14 @@
                     <select name="category" id="category" 
                         class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
                         <option value="">Pilih Kategori</option>
-                        <option value="Pendidikan" {{ old('category') == 'Pendidikan' ? 'selected' : '' }}>Pendidikan</option>
-                        <option value="Novel" {{ old('category') == 'Novel' ? 'selected' : '' }}>Novel</option>
-                        <option value="Cerita" {{ old('category') == 'Cerita' ? 'selected' : '' }}>Cerita</option>
-                        <option value="Sejarah" {{ old('category') == 'Sejarah' ? 'selected' : '' }}>Sejarah</option>
-                        <option value="Sains" {{ old('category') == 'Sains' ? 'selected' : '' }}>Sains</option>
-                        <option value="Teknologi" {{ old('category') == 'Teknologi' ? 'selected' : '' }}>Teknologi</option>
-                        <option value="Agama" {{ old('category') == 'Agama' ? 'selected' : '' }}>Agama</option>
-                        <option value="Lainnya" {{ old('category') == 'Lainnya' ? 'selected' : '' }}>Lainnya</option>
+                        <option value="Agama & Keagamaan" {{ old('category') == 'Agama & Keagamaan' ? 'selected' : '' }}>📖 Agama & Keagamaan</option>
+                        <option value="Pendidikan & Pelajaran" {{ old('category') == 'Pendidikan & Pelajaran' ? 'selected' : '' }}>🎓 Pendidikan & Pelajaran</option>
+                        <option value="Referensi & Kamus" {{ old('category') == 'Referensi & Kamus' ? 'selected' : '' }}>📚 Referensi & Kamus</option>
+                        <option value="Teknologi & Sains" {{ old('category') == 'Teknologi & Sains' ? 'selected' : '' }}>💻 Teknologi & Sains</option>
+                        <option value="Buku Bacaan - Fiksi" {{ old('category') == 'Buku Bacaan - Fiksi' ? 'selected' : '' }}>📖 Buku Bacaan - Fiksi</option>
+                        <option value="Buku Bacaan - Non-Fiksi" {{ old('category') == 'Buku Bacaan - Non-Fiksi' ? 'selected' : '' }}>📖 Buku Bacaan - Non-Fiksi</option>
+                        <option value="Sejarah & Budaya" {{ old('category') == 'Sejarah & Budaya' ? 'selected' : '' }}>📜 Sejarah & Budaya</option>
+                        <option value="Lainnya" {{ old('category') == 'Lainnya' ? 'selected' : '' }}>📋 Lainnya</option>
                     </select>
                     @error('category')
                         <p class="text-red-500 text-sm mt-1">{{ $message }}</p>

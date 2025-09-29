@@ -39,6 +39,7 @@ class BorrowingController extends Controller
             'book_id' => 'required|exists:books,id',
             'member_id' => 'nullable|exists:members,id',
             'teacher_id' => 'nullable|exists:teachers,id',
+            'jumlah' => 'required|integer|min:1',
             'borrow_date' => 'required|date',   
             'due_date' => 'required|date|after:borrow_date',
         ]);
@@ -49,17 +50,23 @@ class BorrowingController extends Controller
         }
 
         $book = Book::find($validated['book_id']);
+        $quantity = $validated['jumlah'];
         
-        if ($book->available_quantity <= 0) {
-            return back()->withErrors(['book_id' => 'Buku tidak tersedia untuk dipinjam.']);
+        if ($book->available_quantity < $quantity) {
+            return back()->withErrors(['jumlah' => "Stok buku tidak mencukupi. Stok tersedia: {$book->available_quantity} buku."]);
         }
 
-        $book->decrement('available_quantity');
+        // Kurangi stok buku sesuai jumlah yang dipinjam
+        $book->decrement('available_quantity', $quantity);
+        
+        // Tambahkan quantity ke data yang akan disimpan
+        $validated['quantity'] = $quantity;
+        unset($validated['jumlah']); // Hapus field jumlah karena sudah diganti dengan quantity
         
         Borrowing::create($validated);
 
         return redirect()->route('borrowings.index')
-            ->with('success', 'Peminjaman berhasil dibuat!');
+            ->with('success', "Peminjaman berhasil dibuat! {$quantity} buku telah dipinjam.");
     }
 
     public function show(Borrowing $borrowing): View
@@ -75,16 +82,18 @@ class BorrowingController extends Controller
             'return_date' => Carbon::today()
         ]);
 
-        $borrowing->book->increment('available_quantity');
+        // Kembalikan stok buku sesuai jumlah yang dipinjam
+        $borrowing->book->increment('available_quantity', $borrowing->quantity);
 
         return redirect()->route('borrowings.index')
-            ->with('success', 'Buku berhasil dikembalikan!');
+            ->with('success', "Buku berhasil dikembalikan! {$borrowing->quantity} buku telah dikembalikan.");
     }
 
     public function destroy(Borrowing $borrowing): RedirectResponse
     {
         if ($borrowing->status === 'borrowed') {
-            $borrowing->book->increment('available_quantity');
+            // Kembalikan stok buku sesuai jumlah yang dipinjam
+            $borrowing->book->increment('available_quantity', $borrowing->quantity);
         }
         
         $borrowing->delete();

@@ -2,14 +2,11 @@
 
 @section('content')
 <div class="space-y-6 pb-8">
-    <div class="flex justify-between items-center">
-        <!-- <h1 class="text-3xl font-bold text-gray-900">Daftar Anggota</h1> -->
-        <div class="flex gap-3">
-            <button type="button" id="importBtn" class="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition">
-                <i class="fas fa-file-import mr-2"></i>Import CSV
-            </button>
-            <a href="{{ route('members.create') }}" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition">
-                <i class="fas fa-plus mr-2"></i>Tambah Anggota
+    <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
+        <h1 class="text-2xl sm:text-3xl font-bold text-gray-900">Daftar Anggota</h1>
+        <div class="flex flex-col sm:flex-row gap-2 sm:gap-3">
+            <a href="{{ route('members.create') }}" class="bg-blue-600 text-white px-3 py-2 sm:px-4 rounded-lg hover:bg-blue-700 transition text-sm sm:text-base text-center">
+                <i class="fas fa-plus mr-1 sm:mr-2"></i><span class="hidden sm:inline">Tambah Anggota</span><span class="sm:hidden">Tambah</span>
             </a>
         </div>
     </div>
@@ -24,7 +21,7 @@
                             <i class="fas fa-search text-gray-400"></i>
                         </div>
                         <input type="text" name="search" value="{{ request('search') }}" 
-                            placeholder="Cari anggota berdasarkan nama, NIS/NISN, kelas, telepon, atau alamat..."
+                            placeholder="Cari anggota berdasarkan nama, NISN, kelas, telepon, atau alamat..."
                             class="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md leading-5 bg-white placeholder-gray-500 focus:outline-none focus:placeholder-gray-400 focus:ring-1 focus:ring-blue-500 focus:border-blue-500">
                     </div>
                 </div>
@@ -46,13 +43,13 @@
                     </select>
                 </div>
                 
-                <div class="flex gap-2">
-                    <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition">
-                        <i class="fas fa-search mr-2"></i>Cari
+                <div class="flex flex-col sm:flex-row gap-2">
+                    <button type="submit" class="bg-blue-600 text-white px-3 py-2 sm:px-4 rounded-md hover:bg-blue-700 transition text-sm sm:text-base">
+                        <i class="fas fa-search mr-1 sm:mr-2"></i>Cari
                     </button>
                     @if(request('search') || (request('kelas') && request('kelas') !== 'all') || (request('status') && request('status') !== 'all'))
-                        <a href="{{ route('members.index') }}" class="bg-gray-500 text-white px-4 py-2 rounded-md hover:bg-gray-600 transition">
-                            <i class="fas fa-times mr-2"></i>Reset
+                        <a href="{{ route('members.index') }}" class="bg-gray-500 text-white px-3 py-2 sm:px-4 rounded-md hover:bg-gray-600 transition text-sm sm:text-base text-center">
+                            <i class="fas fa-times mr-1 sm:mr-2"></i>Reset
                         </a>
                     @endif
                 </div>
@@ -81,14 +78,15 @@
     </div>
 
     <div class="bg-white rounded-lg shadow">
-        <div class="p-6">
+        <div class="p-4 sm:p-6">
             @if($members->count() > 0)
-                <div class="overflow-x-auto">
+                <!-- Desktop Table View -->
+                <div class="hidden lg:block overflow-x-auto">
                     <table class="min-w-full divide-y divide-gray-200">
                         <thead class="bg-gray-50">
                             <tr>
                                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nama</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">NIS/NISN</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">NISN</th>
                                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Kelas</th>
                                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Telepon</th>
                                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
@@ -138,6 +136,59 @@
                         </tbody>
                     </table>
                 </div>
+
+                <!-- Mobile Card View -->
+                <div class="lg:hidden space-y-4">
+                    @foreach($members as $member)
+                        <div class="bg-gray-50 rounded-lg p-4 border border-gray-200">
+                            <div class="flex justify-between items-start mb-3">
+                                <div class="flex-1">
+                                    <h3 class="text-lg font-semibold text-gray-900">{{ $member->name }}</h3>
+                                    <p class="text-sm text-gray-600">{{ $member->address }}</p>
+                                </div>
+                                <span class="px-2 py-1 text-xs font-medium rounded-full 
+                                    @if($member->status === 'active') bg-green-100 text-green-800
+                                    @else bg-red-100 text-red-800 @endif">
+                                    {{ $member->status === 'active' ? 'Aktif' : 'Nonaktif' }}
+                                </span>
+                            </div>
+                            
+                            <div class="grid grid-cols-2 gap-3 mb-3">
+                                <div>
+                                    <p class="text-xs text-gray-500 uppercase tracking-wide">NIS/NISN</p>
+                                    <p class="text-sm font-medium text-gray-900">{{ $member->member_id }}</p>
+                                </div>
+                                <div>
+                                    <p class="text-xs text-gray-500 uppercase tracking-wide">Kelas</p>
+                                    <span class="px-2 py-1 text-xs font-medium rounded-full bg-blue-100 text-blue-800">
+                                        {{ $member->kelas ?? '-' }}
+                                    </span>
+                                </div>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <p class="text-xs text-gray-500 uppercase tracking-wide">Telepon</p>
+                                <p class="text-sm text-gray-900">{{ $member->phone }}</p>
+                            </div>
+                            
+                            <div class="flex justify-end space-x-2">
+                                <a href="{{ route('members.show', $member) }}" class="text-blue-600 hover:text-blue-900 p-2">
+                                    <i class="fas fa-eye"></i>
+                                </a>
+                                <a href="{{ route('members.edit', $member) }}" class="text-indigo-600 hover:text-indigo-900 p-2">
+                                    <i class="fas fa-edit"></i>
+                                </a>
+                                <form action="{{ route('members.destroy', $member) }}" method="POST" class="inline">
+                                    @csrf
+                                    @method('DELETE')
+                                    <button type="submit" class="text-red-600 hover:text-red-900 p-2" onclick="return confirm('Yakin ingin menghapus anggota ini?')">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                    @endforeach
+                </div>
             @else
                 <div class="text-center py-8">
                     <i class="fas fa-users text-4xl text-gray-400 mb-4"></i>
@@ -151,98 +202,11 @@
     </div>
 </div>
 
-<!-- Import CSV Modal -->
-<div id="importModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 hidden">
-    <div class="flex items-center justify-center min-h-screen p-4">
-        <div class="bg-white rounded-lg shadow-xl max-w-md w-full">
-            <div class="p-6">
-                <div class="flex items-center justify-between mb-4">
-                    <h3 class="text-lg font-semibold text-gray-900">Import Data Siswa</h3>
-                    <button type="button" id="closeImportModal" class="text-gray-400 hover:text-gray-600">
-                        <i class="fas fa-times"></i>
-                    </button>
-                </div>
-                
-                <form id="importForm" enctype="multipart/form-data">
-                    @csrf
-                    <div class="mb-4">
-                        <label for="csv_file" class="block text-sm font-medium text-gray-700 mb-2">
-                            Pilih File CSV
-                        </label>
-                        <input type="file" id="csv_file" name="csv_file" accept=".csv" required
-                            class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100">
-                        <p class="text-xs text-gray-500 mt-1">
-                            Format: NISN, Nama, Kelas (dari Google Sheets)
-                        </p>
-                    </div>
-                    
-                    <div class="flex justify-end space-x-3">
-                        <button type="button" id="cancelImport" class="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-md hover:bg-gray-200">
-                            Batal
-                        </button>
-                        <button type="submit" id="submitImport" class="px-4 py-2 text-sm font-medium text-white bg-green-600 rounded-md hover:bg-green-700">
-                            <i class="fas fa-upload mr-1"></i>Import
-                        </button>
-                    </div>
-                </form>
-            </div>
-        </div>
-    </div>
-</div>
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    const importBtn = document.getElementById('importBtn');
-    const importModal = document.getElementById('importModal');
-    const closeImportModal = document.getElementById('closeImportModal');
-    const cancelImport = document.getElementById('cancelImport');
-    const importForm = document.getElementById('importForm');
-    const submitImport = document.getElementById('submitImport');
+    // Import functionality removed - now available in Administrator menu
 
-    importBtn.addEventListener('click', function() {
-        importModal.classList.remove('hidden');
-    });
-
-    closeImportModal.addEventListener('click', function() {
-        importModal.classList.add('hidden');
-    });
-
-    cancelImport.addEventListener('click', function() {
-        importModal.classList.add('hidden');
-    });
-
-    importForm.addEventListener('submit', function(e) {
-        e.preventDefault();
-        
-        const formData = new FormData(this);
-        submitImport.disabled = true;
-        submitImport.innerHTML = '<i class="fas fa-spinner fa-spin mr-1"></i>Importing...';
-
-        fetch('{{ route("members.import-csv") }}', {
-            method: 'POST',
-            body: formData,
-            headers: {
-                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
-            }
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                alert(`Import berhasil!\n${data.message}`);
-                location.reload();
-            } else {
-                alert('Import gagal: ' + data.message);
-            }
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            alert('Terjadi kesalahan saat import data');
-        })
-        .finally(() => {
-            submitImport.disabled = false;
-            submitImport.innerHTML = '<i class="fas fa-upload mr-1"></i>Import';
-        });
-    });
 });
 </script>
 @endsection
