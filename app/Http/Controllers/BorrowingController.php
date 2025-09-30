@@ -16,7 +16,7 @@ class BorrowingController extends Controller
 {
     public function index(): View
     {
-        $borrowings = Borrowing::with(['book', 'member'])
+        $borrowings = Borrowing::with(['book', 'member', 'teacher'])
             ->orderBy('created_at', 'desc')
             ->get();
         return view('borrowings.index', compact('borrowings'));

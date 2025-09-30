@@ -326,3 +326,5 @@ echo "- Pastikan koneksi internet tersedia untuk mengakses Google Books API\n";
 echo "- Untuk penggunaan production, tambahkan error handling yang lebih robust\n";
 echo "- Pertimbangkan untuk menambahkan rate limiting dan caching\n";
 
+
+
