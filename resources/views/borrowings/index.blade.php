@@ -41,9 +41,17 @@
                                         <div class="text-sm text-gray-500">{{ $borrowing->book->author }}</div>
                                     </td>
                                     <td class="px-6 py-4 whitespace-nowrap">
-                                        <div class="text-sm font-medium text-gray-900">{{ $borrowing->member->name }}</div>
-                                        <div class="text-sm text-gray-500">{{ $borrowing->member->member_id }}</div>
-                                        <div class="text-xs text-gray-400">{{ $borrowing->member->kelas ?? 'Kelas belum ditentukan' }}</div>
+                                        @if($borrowing->member)
+                                            <div class="text-sm font-medium text-gray-900">{{ $borrowing->member->name }}</div>
+                                            <div class="text-sm text-gray-500">{{ $borrowing->member->member_id }}</div>
+                                            <div class="text-xs text-gray-400">{{ $borrowing->member->kelas ?? 'Kelas belum ditentukan' }}</div>
+                                        @elseif($borrowing->teacher)
+                                            <div class="text-sm font-medium text-gray-900">{{ $borrowing->teacher->name }}</div>
+                                            <div class="text-sm text-gray-500">{{ $borrowing->teacher->teacher_id }}</div>
+                                            <div class="text-xs text-gray-400">Guru</div>
+                                        @else
+                                            <div class="text-sm text-gray-500">-</div>
+                                        @endif
                                     </td>
                                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                                         <span class="px-2 py-1 text-xs font-medium rounded-full bg-blue-100 text-blue-800">
@@ -141,9 +149,17 @@
                             
                             <div class="mb-3">
                                 <p class="text-xs text-gray-500 uppercase tracking-wide">Peminjam</p>
-                                <p class="text-sm font-medium text-gray-900">{{ $borrowing->member->name }}</p>
-                                <p class="text-sm text-gray-600">{{ $borrowing->member->member_id }}</p>
-                                <p class="text-xs text-gray-500">{{ $borrowing->member->kelas ?? 'Kelas belum ditentukan' }}</p>
+                                @if($borrowing->member)
+                                    <p class="text-sm font-medium text-gray-900">{{ $borrowing->member->name }}</p>
+                                    <p class="text-sm text-gray-600">{{ $borrowing->member->member_id }}</p>
+                                    <p class="text-xs text-gray-500">{{ $borrowing->member->kelas ?? 'Kelas belum ditentukan' }}</p>
+                                @elseif($borrowing->teacher)
+                                    <p class="text-sm font-medium text-gray-900">{{ $borrowing->teacher->name }}</p>
+                                    <p class="text-sm text-gray-600">{{ $borrowing->teacher->teacher_id }}</p>
+                                    <p class="text-xs text-gray-500">Guru</p>
+                                @else
+                                    <p class="text-sm text-gray-500">-</p>
+                                @endif
                                 <div class="mt-2">
                                     <span class="px-2 py-1 text-xs font-medium rounded-full bg-blue-100 text-blue-800">
                                         {{ $borrowing->quantity }} buku dipinjam

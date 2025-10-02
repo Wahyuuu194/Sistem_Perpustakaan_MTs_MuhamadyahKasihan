@@ -60,8 +60,4 @@ Route::middleware('auth')->group(function () {
     Route::post('books/import-excel', [BookImportController::class, 'importExcel'])->name('books.import-excel');
     Route::post('books/preview-excel', [BookImportController::class, 'previewExcel'])->name('books.preview-excel');
     
-    // ISBN Management Routes
-    Route::get('books/isbn-manager', function() {
-        return view('books.isbn-manager');
-    })->name('books.isbn-manager');
 });

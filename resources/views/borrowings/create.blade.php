@@ -191,14 +191,14 @@
                                     <i class="fas fa-qrcode text-blue-600 text-lg mr-3 flex-shrink-0"></i>
                                     <div class="flex-1 min-w-0">
                                         <h3 class="text-sm font-semibold text-blue-800 mb-1">Scan QR Code Kartu Akses Guru</h3>
-                                        <p class="text-xs text-blue-600">Gunakan kamera untuk scan QR code dari kartu akses guru</p>
+                                        <p class="text-xs text-blue-600">Maaf Scan QR Guru sedang dalam pengembangan. Gunakan pilih Guru secara manual.</p>
                                     </div>
                                 </div>
-                                <div class="flex-shrink-0">
+                                <!-- <div class="flex-shrink-0">
                                     <button type="button" id="scanTeacherBtn" class="w-full sm:w-auto px-3 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition font-medium text-sm">
                                         <i class="fas fa-camera mr-1"></i>Scan QR
                                     </button>
-                                </div>
+                                </div> -->
                             </div>
                         </div>
                     </div>
