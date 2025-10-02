@@ -55,9 +55,6 @@
                             <a href="{{ route('import-books') }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition">
                                 <i class="fas fa-file-import mr-2 text-green-600"></i>Import Buku
                             </a>
-                            <a href="{{ route('books.isbn-manager') }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition">
-                                <i class="fas fa-barcode mr-2 text-blue-600"></i>Manajemen ISBN
-                            </a>
                             <div class="border-t border-gray-100 my-1"></div>
                             <a href="{{ route('members.import') }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition">
                                 <i class="fas fa-file-import mr-2 text-orange-600"></i>Import Murid
@@ -119,9 +116,6 @@
                         </div>
                         <a href="{{ route('import-books') }}" class="block px-3 py-2 text-blue-200 hover:bg-blue-600 rounded-md">
                             <i class="fas fa-file-import mr-2 text-green-400"></i>Import Buku
-                        </a>
-                        <a href="{{ route('books.isbn-manager') }}" class="block px-3 py-2 text-blue-200 hover:bg-blue-600 rounded-md">
-                            <i class="fas fa-barcode mr-2 text-blue-400"></i>Manajemen ISBN
                         </a>
                         <a href="{{ route('members.import') }}" class="block px-3 py-2 text-blue-200 hover:bg-blue-600 rounded-md">
                             <i class="fas fa-file-import mr-2 text-orange-400"></i>Import Murid
