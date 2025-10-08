@@ -110,6 +110,11 @@
                                             {{ $borrowing->book->kelas }}
                                         </span>
                                     @endif
+                                    @if($borrowing->book->rak)
+                                        <span class="px-2 py-1 text-xs font-medium rounded-full bg-blue-100 text-blue-800">
+                                            Rak {{ $borrowing->book->rak }}
+                                        </span>
+                                    @endif
                                 </div>
                                 <div class="space-y-2 text-sm text-gray-600">
                                     <p><strong>Penulis:</strong> {{ $borrowing->book->author }}</p>
@@ -118,6 +123,9 @@
                                         <p><strong>Penerbit:</strong> {{ $borrowing->book->publisher }}</p>
                                     @endif
                                     <p><strong>Kategori:</strong> {{ $borrowing->book->category ?? 'Tidak ada kategori' }}</p>
+                                    @if($borrowing->book->rak)
+                                        <p><strong>Rak:</strong> Rak {{ $borrowing->book->rak }}</p>
+                                    @endif
                                     <p><strong>Stok:</strong> {{ $borrowing->book->available_quantity }}/{{ $borrowing->book->quantity }}</p>
                                 </div>
                             </div>

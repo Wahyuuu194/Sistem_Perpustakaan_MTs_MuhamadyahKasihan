@@ -42,7 +42,7 @@
                 </div>
 
                 <!-- Password -->
-                <div>
+                <div class="relative">
                     <label for="password" class="block text-sm font-medium text-gray-700 mb-2">
                         <i class="fas fa-lock mr-2"></i>Password
                     </label>
@@ -50,8 +50,11 @@
                            type="password" 
                            name="password" 
                            required
-                           class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent @error('password') border-red-500 @enderror"
+                           class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent pr-10 @error('password') border-red-500 @enderror"
                            placeholder="Masukkan password Anda">
+                    <span id="togglePassword" class="absolute right-3 top-9 cursor-pointer text-gray-500 hover:text-blue-600">
+                        <i class="fas fa-eye"></i>
+                    </span>
                     @error('password')
                         <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
                     @enderror
@@ -97,5 +100,23 @@
         </div>
     </div>
 </body>
+    <script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const togglePassword = document.getElementById('togglePassword');
+        const passwordInput = document.getElementById('password');
+        togglePassword.addEventListener('click', function () {
+            const icon = this.querySelector('i');
+            if (passwordInput.type === 'password') {
+                passwordInput.type = 'text';
+                icon.classList.remove('fa-eye');
+                icon.classList.add('fa-eye-slash');
+            } else {
+                passwordInput.type = 'password';
+                icon.classList.remove('fa-eye-slash');
+                icon.classList.add('fa-eye');
+            }
+        });
+    });
+    </script>
 </html>
 

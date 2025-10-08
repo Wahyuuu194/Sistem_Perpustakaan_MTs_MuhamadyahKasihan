@@ -40,6 +40,11 @@
                                 {{ $book->kelas }}
                             </span>
                         @endif
+                        @if($book->rak)
+                            <span class="px-3 py-1 text-sm font-medium rounded-full bg-blue-100 text-blue-800">
+                                Rak {{ $book->rak }}
+                            </span>
+                        @endif
                     </div>
                     
                     <div class="space-y-4">
@@ -64,6 +69,13 @@
                             <span class="text-sm font-medium text-gray-500">Kategori:</span>
                             <p class="text-lg text-gray-900">{{ $book->category ?? 'Tidak ada kategori' }}</p>
                         </div>
+                        
+                        @if($book->rak)
+                        <div>
+                            <span class="text-sm font-medium text-gray-500">Rak:</span>
+                            <p class="text-lg text-gray-900">Rak {{ $book->rak }}</p>
+                        </div>
+                        @endif
                         
                         <div>
                             <span class="text-sm font-medium text-gray-500">Stok:</span>

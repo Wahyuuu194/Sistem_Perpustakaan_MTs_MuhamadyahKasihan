@@ -54,10 +54,12 @@
                                 data-author="{{ $book->author }}"
                                 data-isbn="{{ $book->isbn }}"
                                 data-kelas="{{ $book->kelas }}"
+                                data-rak="{{ $book->rak }}"
                                 data-category="{{ $book->category }}"
                                 data-available="{{ $book->available_quantity }}"
-                                data-search="{{ strtolower($book->title . ' ' . $book->author . ' ' . $book->isbn . ' ' . $book->kelas . ' ' . $book->category) }}">
-                                {{ $book->title }}@if($book->kelas) [{{ $book->kelas }}]@endif - {{ $book->author }} (Stok: {{ $book->available_quantity }})
+                                data-search="{{ strtolower($book->title . ' ' . $book->author . ' ' . $book->isbn . ' ' . $book->kelas . ' ' . $book->rak . ' ' . $book->category) }}">
+                                {{ $book->title }}@if($book->kelas) [{{ $book->kelas }}] @endif @if($book->rak) [Rak {{ $book->rak }}] @endif - {{ $book->author }} (Stok: {{ $book->available_quantity }})
+
                             </option>
                         @endforeach
                     </select>
@@ -86,6 +88,7 @@
                                     <p><strong>Kategori:</strong> <span id="selected_category"></span></p>
                                     <p><strong>ISBN:</strong> <span id="selected_isbn"></span></p>
                                     <p><strong>Kelas:</strong> <span id="selected_kelas"></span></p>
+                                    <p><strong>Rak:</strong> <span id="selected_rak"></span></p>
                                     <p><strong>Stok Tersedia:</strong> <span id="selected_available" class="font-semibold"></span></p>
                                 </div>
                             </div>
@@ -191,14 +194,14 @@
                                     <i class="fas fa-qrcode text-blue-600 text-lg mr-3 flex-shrink-0"></i>
                                     <div class="flex-1 min-w-0">
                                         <h3 class="text-sm font-semibold text-blue-800 mb-1">Scan QR Code Kartu Akses Guru</h3>
-                                        <p class="text-xs text-blue-600">Maaf Scan QR Guru sedang dalam pengembangan. Gunakan pilih Guru secara manual.</p>
+                                        <p class="text-xs text-blue-600">Gunakan kamera untuk scan QR code dari kartu akses guru</p>
                                     </div>
                                 </div>
-                                <!-- <div class="flex-shrink-0">
+                                <div class="flex-shrink-0">
                                     <button type="button" id="scanTeacherBtn" class="w-full sm:w-auto px-3 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition font-medium text-sm">
                                         <i class="fas fa-camera mr-1"></i>Scan QR
                                     </button>
-                                </div> -->
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -361,33 +364,6 @@ document.addEventListener('DOMContentLoaded', function() {
     let scanning = false;
     let currentScanType = 'student'; // 'student' or 'teacher'
 
-    // Function to play success sound - Quick Beep Scanner
-    function playSuccessSound() {
-        try {
-            const audioContext = new (window.AudioContext || window.webkitAudioContext)();
-            const oscillator = audioContext.createOscillator();
-            const gainNode = audioContext.createGain();
-            
-            oscillator.connect(gainNode);
-            gainNode.connect(audioContext.destination);
-            
-            // High frequency, very short duration - Quick Beep
-            oscillator.frequency.setValueAtTime(1500, audioContext.currentTime); // 1500Hz
-            oscillator.type = 'square'; // Square wave for electronic sound
-            
-            // Very quick attack and decay
-            gainNode.gain.setValueAtTime(0, audioContext.currentTime);
-            gainNode.gain.linearRampToValueAtTime(0.5, audioContext.currentTime + 0.003); // Very quick attack
-            gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.05); // Quick decay
-            
-            oscillator.start(audioContext.currentTime);
-            oscillator.stop(audioContext.currentTime + 0.05); // Very short duration
-            
-        } catch (error) {
-            console.log('Audio not supported:', error);
-        }
-    }
-
     // Book search functionality
     bookSearch.addEventListener('input', function() {
         const searchTerm = this.value.toLowerCase().trim();
@@ -507,6 +483,7 @@ document.addEventListener('DOMContentLoaded', function() {
             document.getElementById('selected_category').textContent = selectedOption.getAttribute('data-category') || 'N/A';
             document.getElementById('selected_isbn').textContent = selectedOption.getAttribute('data-isbn') || 'N/A';
             document.getElementById('selected_kelas').textContent = selectedOption.getAttribute('data-kelas') || 'Semua Kelas';
+            document.getElementById('selected_rak').textContent = selectedOption.getAttribute('data-rak') ? 'Rak ' + selectedOption.getAttribute('data-rak') : 'Tidak ada rak';
             document.getElementById('selected_available').textContent = selectedOption.getAttribute('data-available') || '0';
             
             // Add color coding for stock
@@ -701,9 +678,6 @@ document.addEventListener('DOMContentLoaded', function() {
             .then(response => response.json())
             .then(data => {
                 if (data.success) {
-                    // Play success sound
-                    playSuccessSound();
-                    
                     // Find and select the member in dropdown
                     const options = memberSelect.querySelectorAll('option[data-member-id]');
                     for (let option of options) {
@@ -736,9 +710,6 @@ document.addEventListener('DOMContentLoaded', function() {
             .then(response => response.json())
             .then(data => {
                 if (data.success) {
-                    // Play success sound
-                    playSuccessSound();
-                    
                     // Find and select the teacher in dropdown
                     const options = teacherSelect.querySelectorAll('option[data-teacher-id]');
                     for (let option of options) {

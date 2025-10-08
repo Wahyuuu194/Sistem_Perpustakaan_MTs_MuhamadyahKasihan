@@ -85,6 +85,25 @@
                 </div>
 
                 <div>
+                    <label for="rak" class="block text-sm font-medium text-gray-700 mb-2">Rak</label>
+                    <select name="rak" id="rak" 
+                        class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        <option value="">Pilih Rak</option>
+                        <option value="A" {{ old('rak', $book->rak) == 'A' ? 'selected' : '' }}>Rak A</option>
+                        <option value="B" {{ old('rak', $book->rak) == 'B' ? 'selected' : '' }}>Rak B</option>
+                        <option value="C" {{ old('rak', $book->rak) == 'C' ? 'selected' : '' }}>Rak C</option>
+                        <option value="D" {{ old('rak', $book->rak) == 'D' ? 'selected' : '' }}>Rak D</option>
+                        <option value="E" {{ old('rak', $book->rak) == 'E' ? 'selected' : '' }}>Rak E</option>
+                        <option value="F" {{ old('rak', $book->rak) == 'F' ? 'selected' : '' }}>Rak F</option>
+                        <option value="G" {{ old('rak', $book->rak) == 'G' ? 'selected' : '' }}>Rak G</option>
+                    </select>
+                    @error('rak')
+                        <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
+                    @enderror
+                </div>
+
+
+                <div>
                     <label for="quantity" class="block text-sm font-medium text-gray-700 mb-2">Jumlah Total *</label>
                     <input type="number" name="quantity" id="quantity" value="{{ old('quantity', $book->quantity) }}" min="1" required
                         class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">

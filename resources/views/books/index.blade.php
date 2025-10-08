@@ -107,6 +107,11 @@
                                                             {{ $book->kelas }}
                                                         </span>
                                                     @endif
+                                                    @if($book->rak)
+                                                        <span class="px-2 py-1 text-xs font-medium rounded-full bg-blue-100 text-blue-800">
+                                                            Rak {{ $book->rak }}
+                                                        </span>
+                                                    @endif
                                                 </div>
                                                 <div class="text-sm text-gray-500">{{ $book->publisher }}</div>
                                             </div>
@@ -176,6 +181,11 @@
                                     @if($book->kelas)
                                         <span class="inline-block px-2 py-1 text-xs font-medium rounded-full bg-purple-100 text-purple-800 mt-2">
                                             {{ $book->kelas }}
+                                        </span>
+                                    @endif
+                                    @if($book->rak)
+                                        <span class="inline-block px-2 py-1 text-xs font-medium rounded-full bg-blue-100 text-blue-800 mt-2 ml-2">
+                                            Rak {{ $book->rak }}
                                         </span>
                                     @endif
                                 </div>
