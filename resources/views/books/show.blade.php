@@ -1,9 +1,9 @@
 @extends('layouts.app')
 
 @section('content')
-<div class="max-w-4xl mx-auto py-6">
-    <div class="bg-white rounded-lg shadow">
-        <div class="p-6">
+<div class="max-w-6xl mx-auto py-6 px-2 sm:px-8">
+    <div class="bg-white rounded-lg shadow px-4 py-8 sm:px-10 sm:py-10">
+        <div>
             <div class="flex justify-between items-center mb-6">
                 <h1 class="text-2xl font-bold text-gray-900">Detail Buku</h1>
                 <div class="flex space-x-3">
@@ -16,8 +16,8 @@
                 </div>
             </div>
 
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
-                <div class="md:col-span-1">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-12">
+                <div class="md:col-span-1 flex items-center justify-center">
                     @if($book->cover_image)
                         <div class="mb-4">
                             <img src="{{ asset('storage/' . $book->cover_image) }}" alt="Cover {{ $book->title }}" 
@@ -25,7 +25,7 @@
                         </div>
                     @else
                         <div class="mb-4">
-                            <div class="w-full max-w-xs mx-auto h-80 bg-gray-200 rounded-lg border flex items-center justify-center">
+                            <div class="w-56 h-80 bg-gray-200 rounded-lg border flex items-center justify-center">
                                 <i class="fas fa-book text-gray-400 text-6xl"></i>
                             </div>
                         </div>

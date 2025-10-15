@@ -54,12 +54,10 @@
                                 data-author="{{ $book->author }}"
                                 data-isbn="{{ $book->isbn }}"
                                 data-kelas="{{ $book->kelas }}"
-                                data-rak="{{ $book->rak }}"
                                 data-category="{{ $book->category }}"
                                 data-available="{{ $book->available_quantity }}"
-                                data-search="{{ strtolower($book->title . ' ' . $book->author . ' ' . $book->isbn . ' ' . $book->kelas . ' ' . $book->rak . ' ' . $book->category) }}">
-                                {{ $book->title }}@if($book->kelas) [{{ $book->kelas }}] @endif @if($book->rak) [Rak {{ $book->rak }}] @endif - {{ $book->author }} (Stok: {{ $book->available_quantity }})
-
+                                data-search="{{ strtolower($book->title . ' ' . $book->author . ' ' . $book->isbn . ' ' . $book->kelas . ' ' . $book->category) }}">
+                                {{ $book->title }}@if($book->kelas) [{{ $book->kelas }}]@endif - {{ $book->author }} (Stok: {{ $book->available_quantity }})
                             </option>
                         @endforeach
                     </select>
@@ -88,7 +86,6 @@
                                     <p><strong>Kategori:</strong> <span id="selected_category"></span></p>
                                     <p><strong>ISBN:</strong> <span id="selected_isbn"></span></p>
                                     <p><strong>Kelas:</strong> <span id="selected_kelas"></span></p>
-                                    <p><strong>Rak:</strong> <span id="selected_rak"></span></p>
                                     <p><strong>Stok Tersedia:</strong> <span id="selected_available" class="font-semibold"></span></p>
                                 </div>
                             </div>
@@ -483,7 +480,6 @@ document.addEventListener('DOMContentLoaded', function() {
             document.getElementById('selected_category').textContent = selectedOption.getAttribute('data-category') || 'N/A';
             document.getElementById('selected_isbn').textContent = selectedOption.getAttribute('data-isbn') || 'N/A';
             document.getElementById('selected_kelas').textContent = selectedOption.getAttribute('data-kelas') || 'Semua Kelas';
-            document.getElementById('selected_rak').textContent = selectedOption.getAttribute('data-rak') ? 'Rak ' + selectedOption.getAttribute('data-rak') : 'Tidak ada rak';
             document.getElementById('selected_available').textContent = selectedOption.getAttribute('data-available') || '0';
             
             // Add color coding for stock
