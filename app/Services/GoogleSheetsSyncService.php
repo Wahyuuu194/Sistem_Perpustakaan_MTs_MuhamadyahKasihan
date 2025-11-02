@@ -2,72 +2,383 @@
 
 namespace App\Services;
 
-use Illuminate\Support\Facades\Http;
+use Google_Client;
+use Google_Service_Sheets;
+use Google_Service_Sheets_ValueRange;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Storage;
 
 class GoogleSheetsSyncService
 {
+    private $client;
+    private $service;
+    private $spreadsheetId;
+    private $initialized = false;
+    
+    public function __construct()
+    {
+        $this->spreadsheetId = env('GOOGLE_SHEETS_SPREADSHEET_ID');
+    }
+    
     /**
-     * Fetch CSV data from Google Sheets public URL
+     * Initialize client (lazy loading)
      */
-    public function fetchCsvData(string $url): array
+    private function ensureInitialized()
+    {
+        if ($this->initialized) {
+            return;
+        }
+        
+        if (empty($this->spreadsheetId)) {
+            throw new \Exception('GOOGLE_SHEETS_SPREADSHEET_ID belum dikonfigurasi di file .env');
+        }
+        
+        $this->initializeClient();
+        $this->initialized = true;
+    }
+    
+    /**
+     * Get Google Sheets Service instance (for testing/debugging)
+     */
+    public function getService(): Google_Service_Sheets
+    {
+        $this->ensureInitialized();
+        return $this->service;
+    }
+    
+    /**
+     * Get Spreadsheet ID
+     */
+    public function getSpreadsheetId(): string
+    {
+        return $this->spreadsheetId;
+    }
+    
+    /**
+     * Initialize Google Client dengan Service Account
+     */
+    private function initializeClient()
     {
         try {
-            // Append cache-buster to ensure we always fetch the latest published CSV
-            $cacheBuster = (string) round(microtime(true) * 1000);
-            $finalUrl = $url . (str_contains($url, '?') ? '&' : '?') . 'cb=' . $cacheBuster;
-
-            $response = Http::timeout(30)
-                ->withHeaders([
-                    'Cache-Control' => 'no-cache, no-store, must-revalidate',
-                    'Pragma' => 'no-cache',
-                    'Expires' => '0',
-                    'User-Agent' => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
-                ])
-                ->retry(2, 200)
-                ->get($finalUrl);
+            $credentialsPath = env('GOOGLE_SHEETS_CREDENTIALS_PATH', 'google-credentials.json');
             
-            if (!$response->successful()) {
-                throw new \Exception("Gagal mengambil data dari Google Sheets. Status: " . $response->status());
+            // Remove 'storage/app/' if included in path
+            $credentialsPath = str_replace('storage/app/', '', $credentialsPath);
+            $credentialsPath = str_replace('app/', '', $credentialsPath);
+            
+            $fullPath = storage_path('app/' . $credentialsPath);
+            
+            if (!file_exists($fullPath)) {
+                // Try alternative paths
+                $altPath = base_path($credentialsPath);
+                if (file_exists($altPath)) {
+                    $fullPath = $altPath;
+                } else {
+                    throw new \Exception('File credentials Google Sheets tidak ditemukan di: ' . $fullPath . ' atau ' . $altPath);
+                }
             }
             
-            $csvContent = $response->body();
-            
-            if (empty($csvContent)) {
-                throw new \Exception("Data dari Google Sheets kosong");
+            if (!is_readable($fullPath)) {
+                throw new \Exception('File credentials tidak bisa dibaca: ' . $fullPath);
             }
             
-            return $this->parseCsv($csvContent);
+            $this->client = new Google_Client();
+            $this->client->setApplicationName('Perpustakaan MTs Muhamadyah');
+            $this->client->setScopes(Google_Service_Sheets::SPREADSHEETS);
+            $this->client->setAccessType('offline');
+            $this->client->setAuthConfig($fullPath);
             
+            $this->service = new Google_Service_Sheets($this->client);
+        } catch (\Google_Service_Exception $e) {
+            $errorMessage = json_decode($e->getMessage(), true);
+            $message = $errorMessage['error']['message'] ?? $e->getMessage();
+            Log::error('Google Sheets API Initialization Error: ' . $message);
+            throw new \Exception('Gagal menginisialisasi Google Sheets API: ' . $message);
         } catch (\Exception $e) {
-            // Log error if Laravel is available
-            if (class_exists('Illuminate\Support\Facades\Log')) {
-                \Illuminate\Support\Facades\Log::error('Google Sheets Sync Error: ' . $e->getMessage());
-            }
-            throw new \Exception("Error: " . $e->getMessage());
+            Log::error('Google Sheets API Initialization Error: ' . $e->getMessage());
+            Log::error('Credentials path attempted: ' . ($fullPath ?? 'N/A'));
+            throw new \Exception('Gagal menginisialisasi Google Sheets API: ' . $e->getMessage());
         }
     }
     
     /**
-     * Parse CSV content into array
+     * Get sheet name by GID
      */
-    private function parseCsv(string $csvContent): array
+    private function getSheetNameByGid(int $gid): string
     {
-        $lines = explode("\n", trim($csvContent));
-        $data = [];
+        $this->ensureInitialized();
         
-        // Skip header row
-        for ($i = 1; $i < count($lines); $i++) {
-            $line = trim($lines[$i]);
-            if (empty($line)) continue;
+        try {
+            $spreadsheet = $this->service->spreadsheets->get($this->spreadsheetId);
+            $sheets = $spreadsheet->getSheets();
             
-            // Parse CSV line (handle commas in data)
-            $row = str_getcsv($line);
-            if (count($row) >= 2) { // Minimal 2 kolom
-                $data[] = $row;
+            if (empty($sheets)) {
+                throw new \Exception("Spreadsheet tidak memiliki sheet");
+            }
+            
+            foreach ($sheets as $sheet) {
+                $sheetId = $sheet->getProperties()->getSheetId();
+                $sheetTitle = $sheet->getProperties()->getTitle();
+                
+                if ($sheetId == $gid) {
+                    return $sheetTitle;
+                }
+            }
+            
+            // If GID not found, return first sheet name as fallback
+            $firstSheet = $sheets[0];
+            $firstSheetTitle = $firstSheet->getProperties()->getTitle();
+            Log::warning("Sheet dengan GID {$gid} tidak ditemukan, menggunakan sheet pertama: {$firstSheetTitle}");
+            return $firstSheetTitle;
+        } catch (\Google_Service_Exception $e) {
+            $errorMessage = json_decode($e->getMessage(), true);
+            $message = $errorMessage['error']['message'] ?? $e->getMessage();
+            Log::error('Get Sheet Name Error: ' . $message);
+            throw new \Exception('Gagal mendapatkan nama sheet: ' . $message);
+        } catch (\Exception $e) {
+            Log::error('Get Sheet Name Error: ' . $e->getMessage());
+            throw new \Exception('Gagal mendapatkan nama sheet: ' . $e->getMessage());
+        }
+    }
+    
+    /**
+     * Read data from Google Sheets
+     */
+    public function readData(string $range): array
+    {
+        $this->ensureInitialized();
+        
+        try {
+            $response = $this->service->spreadsheets_values->get($this->spreadsheetId, $range);
+            $values = $response->getValues();
+            
+            if (empty($values)) {
+                return [];
+            }
+            
+            // Skip header row if exists
+            return array_slice($values, 1);
+        } catch (\Google_Service_Exception $e) {
+            $errorMessage = json_decode($e->getMessage(), true);
+            $message = $errorMessage['error']['message'] ?? $e->getMessage();
+            Log::error('Google Sheets Read Error: ' . $message);
+            throw new \Exception('Gagal membaca data dari Google Sheets: ' . $message);
+        } catch (\Exception $e) {
+            Log::error('Google Sheets Read Error: ' . $e->getMessage());
+            throw new \Exception('Gagal membaca data dari Google Sheets: ' . $e->getMessage());
+        }
+    }
+    
+    /**
+     * Append row to Google Sheets
+     */
+    public function appendRow(string $range, array $values): void
+    {
+        $this->ensureInitialized();
+        
+        try {
+            $body = new Google_Service_Sheets_ValueRange([
+                'values' => [$values]
+            ]);
+            
+            $params = [
+                'valueInputOption' => 'USER_ENTERED',
+                'insertDataOption' => 'INSERT_ROWS'
+            ];
+            
+            $this->service->spreadsheets_values->append(
+                $this->spreadsheetId,
+                $range,
+                $body,
+                $params
+            );
+        } catch (\Exception $e) {
+            Log::error('Google Sheets Append Error: ' . $e->getMessage());
+            throw new \Exception('Gagal menambahkan data ke Google Sheets: ' . $e->getMessage());
+        }
+    }
+    
+    /**
+     * Update row in Google Sheets by finding matching value in first column
+     */
+    public function updateRow(string $range, string $searchValue, array $newValues): bool
+    {
+        $this->ensureInitialized();
+        
+        try {
+            // Get sheet name from range (e.g., "Murid!A2:Z" -> "Murid")
+            $parts = explode('!', $range);
+            $sheetName = $parts[0];
+            $dataRange = $parts[1] ?? 'A2:Z';
+            
+            // Read all data including header to find the row
+            $fullRange = $sheetName . '!A2:' . $this->getColumnLetter(max(count($newValues), 10));
+            $response = $this->service->spreadsheets_values->get($this->spreadsheetId, $fullRange);
+            $allData = $response->getValues();
+            
+            if (empty($allData)) {
+                // No data, append instead
+                $this->appendRow($range, $newValues);
+                return false;
+            }
+            
+            // Find row index
+            $rowIndex = null;
+            for ($i = 0; $i < count($allData); $i++) {
+                if (isset($allData[$i][0]) && trim($allData[$i][0]) === trim($searchValue)) {
+                    $rowIndex = $i + 2; // +2 because sheets are 1-indexed and we start from row 2
+                    break;
+                }
+            }
+            
+            if ($rowIndex === null) {
+                // Row not found, append instead
+                $this->appendRow($range, $newValues);
+                return false;
+            }
+            
+            // Update the row
+            $endColumn = $this->getColumnLetter(count($newValues));
+            $updateRange = $sheetName . '!A' . $rowIndex . ':' . $endColumn . $rowIndex;
+            
+            $body = new Google_Service_Sheets_ValueRange([
+                'values' => [$newValues]
+            ]);
+            
+            $params = [
+                'valueInputOption' => 'USER_ENTERED'
+            ];
+            
+            $this->service->spreadsheets_values->update(
+                $this->spreadsheetId,
+                $updateRange,
+                $body,
+                $params
+            );
+            
+            return true;
+        } catch (\Exception $e) {
+            Log::error('Google Sheets Update Error: ' . $e->getMessage());
+            throw new \Exception('Gagal mengupdate data di Google Sheets: ' . $e->getMessage());
+        }
+    }
+    
+    /**
+     * Get column letter from number (1 = A, 2 = B, etc.)
+     */
+    private function getColumnLetter(int $num): string
+    {
+        $letter = '';
+        while ($num > 0) {
+            $num--;
+            $letter = chr(65 + ($num % 26)) . $letter;
+            $num = intval($num / 26);
+        }
+        return $letter;
+    }
+    
+    /**
+     * Push Book to Google Sheets
+     */
+    public function pushBook(\App\Models\Book $book): bool
+    {
+        try {
+            $gid = (int) env('GOOGLE_SHEETS_SHEET_ID_BUKU', 404883502);
+            $sheetName = $this->getSheetNameByGid($gid);
+            $range = $sheetName . '!A2:E';
+            
+            $values = [
+                $book->title,
+                $book->author ?? '',
+                $book->publisher ?? '',
+                $book->quantity ?? 1,
+                $book->category ?? 'Buku Bacaan'
+            ];
+            
+            return $this->updateRow($range, $book->title, $values);
+        } catch (\Exception $e) {
+            // Try with hardcoded name
+            try {
+                $range = 'Buku!A2:E';
+                $values = [
+                    $book->title,
+                    $book->author ?? '',
+                    $book->publisher ?? '',
+                    $book->quantity ?? 1,
+                    $book->category ?? 'Buku Bacaan'
+                ];
+                return $this->updateRow($range, $book->title, $values);
+            } catch (\Exception $e2) {
+                Log::error('Push Book Error: ' . $e2->getMessage());
+                return false;
             }
         }
-        
-        return $data;
+    }
+    
+    /**
+     * Push Member to Google Sheets
+     */
+    public function pushMember(\App\Models\Member $member): bool
+    {
+        try {
+            $gid = (int) env('GOOGLE_SHEETS_SHEET_ID_MURID', 0);
+            $sheetName = $this->getSheetNameByGid($gid);
+            $range = $sheetName . '!A2:C';
+            
+            $values = [
+                $member->member_id,
+                $member->name,
+                $member->kelas ?? ''
+            ];
+            
+            return $this->updateRow($range, $member->member_id, $values);
+        } catch (\Exception $e) {
+            // Try with hardcoded name
+            try {
+                $range = 'Murid!A2:C';
+                $values = [
+                    $member->member_id,
+                    $member->name,
+                    $member->kelas ?? ''
+                ];
+                return $this->updateRow($range, $member->member_id, $values);
+            } catch (\Exception $e2) {
+                Log::error('Push Member Error: ' . $e2->getMessage());
+                return false;
+            }
+        }
+    }
+    
+    /**
+     * Push Teacher to Google Sheets
+     */
+    public function pushTeacher(\App\Models\Teacher $teacher): bool
+    {
+        try {
+            $gid = (int) env('GOOGLE_SHEETS_SHEET_ID_GURU', 336865292);
+            $sheetName = $this->getSheetNameByGid($gid);
+            $range = $sheetName . '!A2:B';
+            
+            $values = [
+                $teacher->teacher_id,
+                $teacher->name
+            ];
+            
+            return $this->updateRow($range, $teacher->teacher_id, $values);
+        } catch (\Exception $e) {
+            // Try with hardcoded name
+            try {
+                $range = 'Guru!A2:B';
+                $values = [
+                    $teacher->teacher_id,
+                    $teacher->name
+                ];
+                return $this->updateRow($range, $teacher->teacher_id, $values);
+            } catch (\Exception $e2) {
+                Log::error('Push Teacher Error: ' . $e2->getMessage());
+                return false;
+            }
+        }
     }
     
     /**
@@ -75,13 +386,31 @@ class GoogleSheetsSyncService
      */
     public function syncStudents(): array
     {
-        $url = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTV2yHxMdFkv1HIQDuKsceg8QhBoGCqYhy1oBkdzgsWa7jgYt8ophyPHSfa5ukpgRUw3h5Pw_T-0JED/pub?gid=0&single=true&output=csv';
-        
-        $csvData = $this->fetchCsvData($url);
+        try {
+            // Get sheet name by GID
+            $gid = (int) env('GOOGLE_SHEETS_SHEET_ID_MURID', 0);
+            $sheetName = $this->getSheetNameByGid($gid);
+            $range = $sheetName . '!A2:C';
+            $csvData = $this->readData($range);
+        } catch (\Exception $e) {
+            // Fallback to hardcoded name if GID fails
+            $range = 'Murid!A2:C';
+            try {
+                $csvData = $this->readData($range);
+            } catch (\Exception $e2) {
+                return [
+                    'imported' => 0,
+                    'updated' => 0,
+                    'deactivated' => 0,
+                    'errors' => ['Error: ' . $e2->getMessage()],
+                    'total_processed' => 0
+                ];
+            }
+        }
         
         $imported = 0;
         $updated = 0;
-        $deactivated = 0;
+        $deleted = 0;
         $errors = [];
         
         // Collect all student IDs from Google Sheets
@@ -96,7 +425,7 @@ class GoogleSheetsSyncService
                 
                 $nisn = trim($row[0]);
                 $name = trim($row[1]);
-                $class = trim($row[2]);
+                $class = trim($row[2] ?? '');
                 
                 if (empty($nisn) || empty($name)) {
                     $errors[] = "Baris " . ($index + 2) . ": NISN atau Nama kosong";
@@ -134,20 +463,22 @@ class GoogleSheetsSyncService
             }
         }
         
-        // Deactivate students that are not in Google Sheets
-        $studentsNotInSheets = \App\Models\Member::whereNotIn('member_id', $sheetsStudentIds)
-            ->where('status', 'active')
-            ->get();
+        // Delete students that are not in Google Sheets
+        $studentsNotInSheets = \App\Models\Member::whereNotIn('member_id', $sheetsStudentIds)->get();
             
         foreach ($studentsNotInSheets as $student) {
-            $student->update(['status' => 'inactive']);
-            $deactivated++;
+            try {
+                $student->delete();
+                $deleted++;
+            } catch (\Exception $e) {
+                $errors[] = "Gagal menghapus murid {$student->member_id}: " . $e->getMessage();
+            }
         }
         
         return [
             'imported' => $imported,
             'updated' => $updated,
-            'deactivated' => $deactivated,
+            'deleted' => $deleted,
             'errors' => $errors,
             'total_processed' => count($csvData)
         ];
@@ -158,13 +489,31 @@ class GoogleSheetsSyncService
      */
     public function syncTeachers(): array
     {
-        $url = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTV2yHxMdFkv1HIQDuKsceg8QhBoGCqYhy1oBkdzgsWa7jgYt8ophyPHSfa5ukpgRUw3h5Pw_T-0JED/pub?gid=336865292&single=true&output=csv';
-        
-        $csvData = $this->fetchCsvData($url);
+        try {
+            // Get sheet name by GID
+            $gid = (int) env('GOOGLE_SHEETS_SHEET_ID_GURU', 336865292);
+            $sheetName = $this->getSheetNameByGid($gid);
+            $range = $sheetName . '!A2:B';
+            $csvData = $this->readData($range);
+        } catch (\Exception $e) {
+            // Fallback to hardcoded name if GID fails
+            $range = 'Guru!A2:B';
+            try {
+                $csvData = $this->readData($range);
+            } catch (\Exception $e2) {
+                return [
+                    'imported' => 0,
+                    'updated' => 0,
+                    'deleted' => 0,
+                    'errors' => ['Error: ' . $e2->getMessage()],
+                    'total_processed' => 0
+                ];
+            }
+        }
         
         $imported = 0;
         $updated = 0;
-        $deactivated = 0;
+        $deleted = 0;
         $errors = [];
         
         // Collect all teacher IDs from Google Sheets
@@ -214,20 +563,22 @@ class GoogleSheetsSyncService
             }
         }
         
-        // Deactivate teachers that are not in Google Sheets
-        $teachersNotInSheets = \App\Models\Teacher::whereNotIn('teacher_id', $sheetsTeacherIds)
-            ->where('status', 'active')
-            ->get();
+        // Delete teachers that are not in Google Sheets
+        $teachersNotInSheets = \App\Models\Teacher::whereNotIn('teacher_id', $sheetsTeacherIds)->get();
             
         foreach ($teachersNotInSheets as $teacher) {
-            $teacher->update(['status' => 'inactive']);
-            $deactivated++;
+            try {
+                $teacher->delete();
+                $deleted++;
+            } catch (\Exception $e) {
+                $errors[] = "Gagal menghapus guru {$teacher->teacher_id}: " . $e->getMessage();
+            }
         }
         
         return [
             'imported' => $imported,
             'updated' => $updated,
-            'deactivated' => $deactivated,
+            'deleted' => $deleted,
             'errors' => $errors,
             'total_processed' => count($csvData)
         ];
@@ -238,13 +589,31 @@ class GoogleSheetsSyncService
      */
     public function syncBooks(): array
     {
-        $url = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTV2yHxMdFkv1HIQDuKsceg8QhBoGCqYhy1oBkdzgsWa7jgYt8ophyPHSfa5ukpgRUw3h5Pw_T-0JED/pub?gid=404883502&single=true&output=csv';
-        
-        $csvData = $this->fetchCsvData($url);
+        try {
+            // Get sheet name by GID
+            $gid = (int) env('GOOGLE_SHEETS_SHEET_ID_BUKU', 404883502);
+            $sheetName = $this->getSheetNameByGid($gid);
+            $range = $sheetName . '!A2:E';
+            $csvData = $this->readData($range);
+        } catch (\Exception $e) {
+            // Fallback to hardcoded name if GID fails
+            $range = 'Buku!A2:E';
+            try {
+                $csvData = $this->readData($range);
+            } catch (\Exception $e2) {
+                return [
+                    'imported' => 0,
+                    'updated' => 0,
+                    'deleted' => 0,
+                    'errors' => ['Error: ' . $e2->getMessage()],
+                    'total_processed' => 0
+                ];
+            }
+        }
         
         $imported = 0;
         $updated = 0;
-        $deactivated = 0;
+        $deleted = 0;
         $errors = [];
         
         // Collect all book titles from Google Sheets
@@ -258,7 +627,7 @@ class GoogleSheetsSyncService
                 }
                 
                 $title = trim($row[0]);
-                $author = trim($row[1]);
+                $author = trim($row[1] ?? '');
                 $publisher = trim($row[2] ?? '');
                 $quantity = is_numeric($row[3] ?? 1) ? (int)$row[3] : 1;
                 $category = trim($row[4] ?? 'Buku Bacaan');
@@ -273,17 +642,17 @@ class GoogleSheetsSyncService
                 
                 // Author can be empty, but if provided, use it
                 if (empty($author)) {
-                    $author = null; // Set to null if empty
+                    $author = null;
                 }
                 
                 // Normalize category to match system categories
                 $category = $this->normalizeCategory($category);
                 
-                // Check if book exists - simplified logic
+                // Check if book exists
                 $book = \App\Models\Book::where('title', $title)->first();
                 
                 if ($book) {
-                    // Update existing book and mark as active (set quantity > 0)
+                    // Update existing book and mark as active
                     $hasChanges = false;
                     $updateData = [];
                     
@@ -294,7 +663,6 @@ class GoogleSheetsSyncService
                     
                     if ($book->quantity != $quantity) {
                         $updateData['quantity'] = $quantity;
-                        $updateData['available_quantity'] = $quantity; // Reset available quantity to total quantity
                         $hasChanges = true;
                     }
                     
@@ -303,27 +671,22 @@ class GoogleSheetsSyncService
                         $hasChanges = true;
                     }
                     
-                    // Also check for title and author changes
                     if ($book->title !== $title) {
                         $updateData['title'] = $title;
                         $hasChanges = true;
                     }
                     
-                    // Handle author comparison (including null values)
                     $currentAuthor = $book->author;
                     if ($currentAuthor !== $author) {
                         $updateData['author'] = $author;
                         $hasChanges = true;
                     }
                     
-                    // Mark as active (quantity > 0)
                     if ($book->quantity <= 0) {
                         $updateData['quantity'] = $quantity;
-                        $updateData['available_quantity'] = $quantity;
                         $hasChanges = true;
                     }
                     
-                    // Only update if there are actual changes
                     if ($hasChanges) {
                         $book->update($updateData);
                         $updated++;
@@ -349,23 +712,22 @@ class GoogleSheetsSyncService
             }
         }
         
-        // Deactivate books that are not in Google Sheets (set quantity to 0)
-        $booksNotInSheets = \App\Models\Book::whereNotIn('title', $sheetsBookTitles)
-            ->where('quantity', '>', 0)
-            ->get();
+        // Delete books that are not in Google Sheets
+        $booksNotInSheets = \App\Models\Book::whereNotIn('title', $sheetsBookTitles)->get();
             
         foreach ($booksNotInSheets as $book) {
-            $book->update([
-                'quantity' => 0,
-                'available_quantity' => 0,
-            ]);
-            $deactivated++;
+            try {
+                $book->delete();
+                $deleted++;
+            } catch (\Exception $e) {
+                $errors[] = "Gagal menghapus buku {$book->title}: " . $e->getMessage();
+            }
         }
         
         return [
             'imported' => $imported,
             'updated' => $updated,
-            'deactivated' => $deactivated,
+            'deleted' => $deleted,
             'errors' => $errors,
             'total_processed' => count($csvData)
         ];
@@ -378,7 +740,6 @@ class GoogleSheetsSyncService
     {
         $category = strtolower(trim($category));
         
-        // Map Google Sheets categories to system categories
         $categoryMap = [
             'non-fiksi' => 'non-fiksi',
             'fiksi' => 'fiksi',

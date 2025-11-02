@@ -8,9 +8,6 @@
             <a href="{{ route('check-books') }}" class="bg-green-600 text-white px-3 py-2 sm:px-4 rounded-lg hover:bg-green-700 transition text-sm sm:text-base text-center">
                 <i class="fas fa-search mr-1 sm:mr-2"></i><span class="hidden sm:inline">Cek Data Buku</span><span class="sm:hidden">Cek Data</span>
             </a>
-            <button type="button" id="syncBooksBtn" class="bg-purple-600 text-white px-3 py-2 sm:px-4 rounded-lg hover:bg-purple-700 transition text-sm sm:text-base text-center">
-                <i class="fas fa-sync-alt mr-1 sm:mr-2"></i><span class="hidden sm:inline">Singkronkan</span><span class="sm:hidden">Sync</span>
-            </button>
             <a href="{{ route('books.create') }}" class="bg-blue-600 text-white px-3 py-2 sm:px-4 rounded-lg hover:bg-blue-700 transition text-sm sm:text-base text-center">
                 <i class="fas fa-plus mr-1 sm:mr-2"></i><span class="hidden sm:inline">Tambah Buku</span><span class="sm:hidden">Tambah</span>
             </a>
@@ -296,10 +293,22 @@ document.addEventListener('DOMContentLoaded', function() {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                    'Accept': 'application/json'
                 }
             })
-            .then(response => response.json())
+            .then(async response => {
+                const contentType = response.headers.get("content-type");
+                
+                // Check if response is JSON
+                if (contentType && contentType.includes("application/json")) {
+                    return response.json();
+                } else {
+                    // If not JSON, get text to see what we got
+                    const text = await response.text();
+                    throw new Error('Server mengembalikan response yang tidak valid. Status: ' + response.status + '. Response: ' + text.substring(0, 200));
+                }
+            })
             .then(data => {
                 clearInterval(interval);
                 syncProgressBar.style.width = '100%';
@@ -328,7 +337,8 @@ document.addEventListener('DOMContentLoaded', function() {
                 syncStatus.textContent = 'Terjadi kesalahan!';
                 setTimeout(() => {
                     syncProgressModal.classList.add('hidden');
-                    alert('Terjadi kesalahan: ' + error.message);
+                    console.error('Sync Error:', error);
+                    alert('Terjadi kesalahan saat sinkronisasi: ' + error.message);
                 }, 1000);
             })
             .finally(() => {
