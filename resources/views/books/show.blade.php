@@ -4,19 +4,19 @@
 <div class="max-w-6xl mx-auto py-6 px-2 sm:px-8">
     <div class="bg-white rounded-lg shadow px-4 py-8 sm:px-10 sm:py-10">
         <div>
-            <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 mb-6">
-                <h1 class="text-xl sm:text-2xl font-bold text-gray-900">Detail Buku</h1>
-                <div class="flex flex-col sm:flex-row gap-2 sm:gap-3">
-                    <a href="{{ route('books.edit', $book) }}" class="w-full sm:w-auto bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 transition text-center text-sm sm:text-base">
+            <div class="flex justify-between items-center mb-6">
+                <h1 class="text-2xl font-bold text-gray-900">Detail Buku</h1>
+                <div class="flex space-x-3">
+                    <a href="{{ route('books.edit', $book) }}" class="bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 transition">
                         <i class="fas fa-edit mr-2"></i>Edit Buku
                     </a>
-                    <a href="{{ route('books.index') }}" class="w-full sm:w-auto bg-gray-600 text-white px-4 py-2 rounded-lg hover:bg-gray-700 transition text-center text-sm sm:text-base">
-                        <i class="fas fa-arrow-left mr-2"></i>Kembali
+                    <a href="{{ route('books.index') }}" class="bg-gray-600 text-white px-4 py-2 rounded-lg hover:bg-gray-700 transition">
+                        <i class="fas fa-arrow-left mr-2"></i>Kembali ke Daftar
                     </a>
                 </div>
             </div>
 
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-12">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-12">
                 <div class="md:col-span-1 flex items-center justify-center">
                     @if($book->cover_image)
                         <div class="mb-4">
@@ -33,8 +33,8 @@
                 </div>
                 
                 <div class="md:col-span-2">
-                    <div class="flex flex-wrap items-center gap-2 sm:gap-3 mb-4">
-                        <h2 class="text-lg sm:text-xl font-bold text-gray-900 break-words">{{ $book->title }}</h2>
+                    <div class="flex items-center gap-3 mb-4">
+                        <h2 class="text-xl font-bold text-gray-900">{{ $book->title }}</h2>
                         @if($book->kelas)
                             <span class="px-3 py-1 text-sm font-medium rounded-full bg-purple-100 text-purple-800">
                                 {{ $book->kelas }}

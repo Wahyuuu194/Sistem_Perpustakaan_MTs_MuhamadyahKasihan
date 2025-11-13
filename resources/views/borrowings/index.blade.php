@@ -91,6 +91,9 @@
                                             <a href="{{ route('borrowings.show', $borrowing) }}" class="text-blue-600 hover:text-blue-900">
                                                 <i class="fas fa-eye"></i>
                                             </a>
+                                            <a href="{{ route('borrowings.edit', $borrowing) }}" class="text-yellow-600 hover:text-yellow-800">
+                                                <i class="fas fa-edit"></i>
+                                            </a>
                                             @if($borrowing->status === 'borrowed')
                                                 <form action="{{ route('borrowings.return', $borrowing) }}" method="POST" class="inline">
                                                     @csrf
@@ -191,6 +194,9 @@
                             <div class="flex justify-end space-x-2">
                                 <a href="{{ route('borrowings.show', $borrowing) }}" class="text-blue-600 hover:text-blue-900 p-2">
                                     <i class="fas fa-eye"></i>
+                                </a>
+                                <a href="{{ route('borrowings.edit', $borrowing) }}" class="text-yellow-600 hover:text-yellow-800 p-2">
+                                    <i class="fas fa-edit"></i>
                                 </a>
                                 @if($borrowing->status === 'borrowed')
                                     <form action="{{ route('borrowings.return', $borrowing) }}" method="POST" class="inline">
