@@ -386,6 +386,9 @@ class GoogleSheetsSyncService
      */
     public function syncStudents(): array
     {
+        // Increase execution time limit for large syncs
+        set_time_limit(300); // 5 minutes
+        
         try {
             // Get sheet name by GID
             $gid = (int) env('GOOGLE_SHEETS_SHEET_ID_MURID', 0);
@@ -416,64 +419,69 @@ class GoogleSheetsSyncService
         // Collect all student IDs from Google Sheets
         $sheetsStudentIds = [];
         
-        foreach ($csvData as $index => $row) {
-            try {
-                if (count($row) < 3) {
-                    $errors[] = "Baris " . ($index + 2) . ": Data tidak lengkap";
-                    continue;
+        // Disable model events to prevent auto-sync during bulk operations
+        \App\Models\Member::withoutEvents(function() use ($csvData, &$imported, &$updated, &$deleted, &$errors, &$sheetsStudentIds) {
+            foreach ($csvData as $index => $row) {
+                try {
+                    if (count($row) < 3) {
+                        $errors[] = "Baris " . ($index + 2) . ": Data tidak lengkap";
+                        continue;
+                    }
+                    
+                    $nisn = trim($row[0]);
+                    $name = trim($row[1]);
+                    $class = trim($row[2] ?? '');
+                    
+                    if (empty($nisn) || empty($name)) {
+                        $errors[] = "Baris " . ($index + 2) . ": NISN atau Nama kosong";
+                        continue;
+                    }
+                    
+                    // Add to sheets student IDs collection
+                    $sheetsStudentIds[] = $nisn;
+                    
+                    // Check if student exists
+                    $student = \App\Models\Member::where('member_id', $nisn)->first();
+                    
+                    if ($student) {
+                        // Update existing student and mark as active
+                        $student->update([
+                            'name' => $name,
+                            'kelas' => $class,
+                            'status' => 'active',
+                        ]);
+                        $updated++;
+                    } else {
+                        // Create new student
+                        \App\Models\Member::create([
+                            'member_id' => $nisn,
+                            'name' => $name,
+                            'kelas' => $class,
+                            'status' => 'active',
+                            'registration_date' => now(),
+                        ]);
+                        $imported++;
+                    }
+                    
+                } catch (\Exception $e) {
+                    $errors[] = "Baris " . ($index + 2) . ": " . $e->getMessage();
                 }
-                
-                $nisn = trim($row[0]);
-                $name = trim($row[1]);
-                $class = trim($row[2] ?? '');
-                
-                if (empty($nisn) || empty($name)) {
-                    $errors[] = "Baris " . ($index + 2) . ": NISN atau Nama kosong";
-                    continue;
-                }
-                
-                // Add to sheets student IDs collection
-                $sheetsStudentIds[] = $nisn;
-                
-                // Check if student exists
-                $student = \App\Models\Member::where('member_id', $nisn)->first();
-                
-                if ($student) {
-                    // Update existing student and mark as active
-                    $student->update([
-                        'name' => $name,
-                        'kelas' => $class,
-                        'status' => 'active',
-                    ]);
-                    $updated++;
-                } else {
-                    // Create new student
-                    \App\Models\Member::create([
-                        'member_id' => $nisn,
-                        'name' => $name,
-                        'kelas' => $class,
-                        'status' => 'active',
-                        'registration_date' => now(),
-                    ]);
-                    $imported++;
-                }
-                
-            } catch (\Exception $e) {
-                $errors[] = "Baris " . ($index + 2) . ": " . $e->getMessage();
             }
-        }
+        });
         
-        // Delete students that are not in Google Sheets
-        $studentsNotInSheets = \App\Models\Member::whereNotIn('member_id', $sheetsStudentIds)->get();
+        // Delete students that are not in Google Sheets (also without events)
+        \App\Models\Member::withoutEvents(function() use ($sheetsStudentIds, &$deleted, &$errors) {
+            $studentsNotInSheets = \App\Models\Member::whereNotIn('member_id', $sheetsStudentIds)->get();
             
-        foreach ($studentsNotInSheets as $student) {
-            try {
-                $student->delete();
-                $deleted++;
-            } catch (\Exception $e) {
-                $errors[] = "Gagal menghapus murid {$student->member_id}: " . $e->getMessage();
+            foreach ($studentsNotInSheets as $student) {
+                try {
+                    $student->delete();
+                    $deleted++;
+                } catch (\Exception $e) {
+                    $errors[] = "Gagal menghapus murid {$student->member_id}: " . $e->getMessage();
+                }
             }
-        }
+        });
         
         return [
             'imported' => $imported,
@@ -489,6 +497,9 @@ class GoogleSheetsSyncService
      */
     public function syncTeachers(): array
     {
+        // Increase execution time limit for large syncs
+        set_time_limit(300); // 5 minutes
+        
         try {
             // Get sheet name by GID
             $gid = (int) env('GOOGLE_SHEETS_SHEET_ID_GURU', 336865292);
@@ -519,61 +530,66 @@ class GoogleSheetsSyncService
         // Collect all teacher IDs from Google Sheets
         $sheetsTeacherIds = [];
         
-        foreach ($csvData as $index => $row) {
-            try {
-                if (count($row) < 2) {
-                    $errors[] = "Baris " . ($index + 2) . ": Data tidak lengkap";
-                    continue;
+        // Disable model events to prevent auto-sync during bulk operations
+        \App\Models\Teacher::withoutEvents(function() use ($csvData, &$imported, &$updated, &$deleted, &$errors, &$sheetsTeacherIds) {
+            foreach ($csvData as $index => $row) {
+                try {
+                    if (count($row) < 2) {
+                        $errors[] = "Baris " . ($index + 2) . ": Data tidak lengkap";
+                        continue;
+                    }
+                    
+                    $nip = trim($row[0]);
+                    $name = trim($row[1]);
+                    
+                    if (empty($nip) || empty($name)) {
+                        $errors[] = "Baris " . ($index + 2) . ": NIP atau Nama kosong";
+                        continue;
+                    }
+                    
+                    // Add to sheets teacher IDs collection
+                    $sheetsTeacherIds[] = $nip;
+                    
+                    // Check if teacher exists
+                    $teacher = \App\Models\Teacher::where('teacher_id', $nip)->first();
+                    
+                    if ($teacher) {
+                        // Update existing teacher and mark as active
+                        $teacher->update([
+                            'name' => $name,
+                            'status' => 'active',
+                        ]);
+                        $updated++;
+                    } else {
+                        // Create new teacher
+                        \App\Models\Teacher::create([
+                            'teacher_id' => $nip,
+                            'name' => $name,
+                            'status' => 'active',
+                            'registration_date' => now(),
+                        ]);
+                        $imported++;
+                    }
+                    
+                } catch (\Exception $e) {
+                    $errors[] = "Baris " . ($index + 2) . ": " . $e->getMessage();
                 }
-                
-                $nip = trim($row[0]);
-                $name = trim($row[1]);
-                
-                if (empty($nip) || empty($name)) {
-                    $errors[] = "Baris " . ($index + 2) . ": NIP atau Nama kosong";
-                    continue;
-                }
-                
-                // Add to sheets teacher IDs collection
-                $sheetsTeacherIds[] = $nip;
-                
-                // Check if teacher exists
-                $teacher = \App\Models\Teacher::where('teacher_id', $nip)->first();
-                
-                if ($teacher) {
-                    // Update existing teacher and mark as active
-                    $teacher->update([
-                        'name' => $name,
-                        'status' => 'active',
-                    ]);
-                    $updated++;
-                } else {
-                    // Create new teacher
-                    \App\Models\Teacher::create([
-                        'teacher_id' => $nip,
-                        'name' => $name,
-                        'status' => 'active',
-                        'registration_date' => now(),
-                    ]);
-                    $imported++;
-                }
-                
-            } catch (\Exception $e) {
-                $errors[] = "Baris " . ($index + 2) . ": " . $e->getMessage();
             }
-        }
+        });
         
-        // Delete teachers that are not in Google Sheets
-        $teachersNotInSheets = \App\Models\Teacher::whereNotIn('teacher_id', $sheetsTeacherIds)->get();
+        // Delete teachers that are not in Google Sheets (also without events)
+        \App\Models\Teacher::withoutEvents(function() use ($sheetsTeacherIds, &$deleted, &$errors) {
+            $teachersNotInSheets = \App\Models\Teacher::whereNotIn('teacher_id', $sheetsTeacherIds)->get();
             
-        foreach ($teachersNotInSheets as $teacher) {
-            try {
-                $teacher->delete();
-                $deleted++;
-            } catch (\Exception $e) {
-                $errors[] = "Gagal menghapus guru {$teacher->teacher_id}: " . $e->getMessage();
+            foreach ($teachersNotInSheets as $teacher) {
+                try {
+                    $teacher->delete();
+                    $deleted++;
+                } catch (\Exception $e) {
+                    $errors[] = "Gagal menghapus guru {$teacher->teacher_id}: " . $e->getMessage();
+                }
             }
-        }
+        });
         
         return [
             'imported' => $imported,
@@ -589,6 +605,9 @@ class GoogleSheetsSyncService
      */
     public function syncBooks(): array
     {
+        // Increase execution time limit for large syncs
+        set_time_limit(300); // 5 minutes
+        
         try {
             // Get sheet name by GID
             $gid = (int) env('GOOGLE_SHEETS_SHEET_ID_BUKU', 404883502);
@@ -619,110 +638,115 @@ class GoogleSheetsSyncService
         // Collect all book titles from Google Sheets
         $sheetsBookTitles = [];
         
-        foreach ($csvData as $index => $row) {
-            try {
-                if (count($row) < 5) {
-                    $errors[] = "Baris " . ($index + 2) . ": Data tidak lengkap (minimal 5 kolom)";
-                    continue;
+        // Disable model events to prevent auto-sync during bulk operations
+        \App\Models\Book::withoutEvents(function() use ($csvData, &$imported, &$updated, &$deleted, &$errors, &$sheetsBookTitles) {
+            foreach ($csvData as $index => $row) {
+                try {
+                    if (count($row) < 5) {
+                        $errors[] = "Baris " . ($index + 2) . ": Data tidak lengkap (minimal 5 kolom)";
+                        continue;
+                    }
+                    
+                    $title = trim($row[0]);
+                    $author = trim($row[1] ?? '');
+                    $publisher = trim($row[2] ?? '');
+                    $quantity = is_numeric($row[3] ?? 1) ? (int)$row[3] : 1;
+                    $category = trim($row[4] ?? 'Buku Bacaan');
+                    
+                    if (empty($title)) {
+                        $errors[] = "Baris " . ($index + 2) . ": Judul kosong";
+                        continue;
+                    }
+                    
+                    // Add to sheets book titles collection
+                    $sheetsBookTitles[] = $title;
+                    
+                    // Author can be empty, but if provided, use it
+                    if (empty($author)) {
+                        $author = null;
+                    }
+                    
+                    // Normalize category to match system categories
+                    $category = $this->normalizeCategory($category);
+                    
+                    // Check if book exists
+                    $book = \App\Models\Book::where('title', $title)->first();
+                    
+                    if ($book) {
+                        // Update existing book and mark as active
+                        $hasChanges = false;
+                        $updateData = [];
+                        
+                        if ($book->publisher !== $publisher) {
+                            $updateData['publisher'] = $publisher;
+                            $hasChanges = true;
+                        }
+                        
+                        if ($book->quantity != $quantity) {
+                            $updateData['quantity'] = $quantity;
+                            $hasChanges = true;
+                        }
+                        
+                        if ($book->category !== $category) {
+                            $updateData['category'] = $category;
+                            $hasChanges = true;
+                        }
+                        
+                        if ($book->title !== $title) {
+                            $updateData['title'] = $title;
+                            $hasChanges = true;
+                        }
+                        
+                        $currentAuthor = $book->author;
+                        if ($currentAuthor !== $author) {
+                            $updateData['author'] = $author;
+                            $hasChanges = true;
+                        }
+                        
+                        if ($book->quantity <= 0) {
+                            $updateData['quantity'] = $quantity;
+                            $hasChanges = true;
+                        }
+                        
+                        if ($hasChanges) {
+                            $book->update($updateData);
+                            $updated++;
+                        }
+                    } else {
+                        // Create new book
+                        \App\Models\Book::create([
+                            'title' => $title,
+                            'author' => $author,
+                            'publisher' => $publisher,
+                            'quantity' => $quantity,
+                            'available_quantity' => $quantity,
+                            'category' => $category,
+                            'isbn' => $this->generateISBN(),
+                            'status' => 'available',
+                            'registration_date' => now(),
+                        ]);
+                        $imported++;
+                    }
+                    
+                } catch (\Exception $e) {
+                    $errors[] = "Baris " . ($index + 2) . ": " . $e->getMessage();
                 }
-                
-                $title = trim($row[0]);
-                $author = trim($row[1] ?? '');
-                $publisher = trim($row[2] ?? '');
-                $quantity = is_numeric($row[3] ?? 1) ? (int)$row[3] : 1;
-                $category = trim($row[4] ?? 'Buku Bacaan');
-                
-                if (empty($title)) {
-                    $errors[] = "Baris " . ($index + 2) . ": Judul kosong";
-                    continue;
-                }
-                
-                // Add to sheets book titles collection
-                $sheetsBookTitles[] = $title;
-                
-                // Author can be empty, but if provided, use it
-                if (empty($author)) {
-                    $author = null;
-                }
-                
-                // Normalize category to match system categories
-                $category = $this->normalizeCategory($category);
-                
-                // Check if book exists
-                $book = \App\Models\Book::where('title', $title)->first();
-                
-                if ($book) {
-                    // Update existing book and mark as active
-                    $hasChanges = false;
-                    $updateData = [];
-                    
-                    if ($book->publisher !== $publisher) {
-                        $updateData['publisher'] = $publisher;
-                        $hasChanges = true;
-                    }
-                    
-                    if ($book->quantity != $quantity) {
-                        $updateData['quantity'] = $quantity;
-                        $hasChanges = true;
-                    }
-                    
-                    if ($book->category !== $category) {
-                        $updateData['category'] = $category;
-                        $hasChanges = true;
-                    }
-                    
-                    if ($book->title !== $title) {
-                        $updateData['title'] = $title;
-                        $hasChanges = true;
-                    }
-                    
-                    $currentAuthor = $book->author;
-                    if ($currentAuthor !== $author) {
-                        $updateData['author'] = $author;
-                        $hasChanges = true;
-                    }
-                    
-                    if ($book->quantity <= 0) {
-                        $updateData['quantity'] = $quantity;
-                        $hasChanges = true;
-                    }
-                    
-                    if ($hasChanges) {
-                        $book->update($updateData);
-                        $updated++;
-                    }
-                } else {
-                    // Create new book
-                    \App\Models\Book::create([
-                        'title' => $title,
-                        'author' => $author,
-                        'publisher' => $publisher,
-                        'quantity' => $quantity,
-                        'available_quantity' => $quantity,
-                        'category' => $category,
-                        'isbn' => $this->generateISBN(),
-                        'status' => 'available',
-                        'registration_date' => now(),
-                    ]);
-                    $imported++;
-                }
-                
-            } catch (\Exception $e) {
-                $errors[] = "Baris " . ($index + 2) . ": " . $e->getMessage();
             }
-        }
+        });
         
-        // Delete books that are not in Google Sheets
-        $booksNotInSheets = \App\Models\Book::whereNotIn('title', $sheetsBookTitles)->get();
+        // Delete books that are not in Google Sheets (also without events)
+        \App\Models\Book::withoutEvents(function() use ($sheetsBookTitles, &$deleted, &$errors) {
+            $booksNotInSheets = \App\Models\Book::whereNotIn('title', $sheetsBookTitles)->get();
             
-        foreach ($booksNotInSheets as $book) {
-            try {
-                $book->delete();
-                $deleted++;
-            } catch (\Exception $e) {
-                $errors[] = "Gagal menghapus buku {$book->title}: " . $e->getMessage();
+            foreach ($booksNotInSheets as $book) {
+                try {
+                    $book->delete();
+                    $deleted++;
+                } catch (\Exception $e) {
+                    $errors[] = "Gagal menghapus buku {$book->title}: " . $e->getMessage();
+                }
             }
-        }
+        });
         
         return [
             'imported' => $imported,
