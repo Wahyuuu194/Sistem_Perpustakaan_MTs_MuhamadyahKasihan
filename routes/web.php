@@ -8,6 +8,7 @@ use App\Http\Controllers\TeacherController;
 use App\Http\Controllers\BorrowingController;
 use App\Http\Controllers\BookImportController;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\SyncController;
 
 // Authentication Routes
 Route::middleware('guest')->group(function () {
@@ -27,8 +28,10 @@ Route::post('/import-books', [BookImportController::class, 'importExcel'])->name
 Route::post('/import-books-multiple', [BookImportController::class, 'importMultipleFiles'])->name('import-books-multiple');
 Route::post('/preview-books', [BookImportController::class, 'previewExcel'])->name('preview-books');
 
-// Books sync route (no auth required for testing)
-Route::post('books/sync-google-sheets', [App\Http\Controllers\BookController::class, 'syncFromGoogleSheets'])->name('books.sync-google-sheets');
+// Sync routes (no auth required for testing)
+Route::post('books/sync-google-sheets', [App\Http\Controllers\BookController::class, 'syncFromGoogleSheets'])
+    ->middleware(\App\Http\Middleware\ForceJsonResponse::class)
+    ->name('books.sync-google-sheets');
 
 // Check books route
 Route::get('/check-books', [App\Http\Controllers\CheckBooksController::class, 'index'])->name('check-books');
@@ -54,6 +57,9 @@ Route::middleware('auth')->group(function () {
     Route::patch('borrowings/{borrowing}/return', [BorrowingController::class, 'return'])->name('borrowings.return');
     Route::post('members/check-nisn', [MemberController::class, 'checkNisn'])->name('members.check-nisn');
     Route::post('teachers/check-nip', [TeacherController::class, 'checkNip'])->name('teachers.check-nip');
+    
+    // Sync Routes (protected)
+    Route::get('/sync', [SyncController::class, 'index'])->name('sync.index');
     
     // Book Import Routes (protected)
     Route::get('books/import-excel', [BookImportController::class, 'showImportForm'])->name('books.import-excel');

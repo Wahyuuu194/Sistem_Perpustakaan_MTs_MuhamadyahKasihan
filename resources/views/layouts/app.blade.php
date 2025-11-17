@@ -12,9 +12,9 @@
     <nav class="bg-blue-600 text-white shadow-lg">
         <div class="max-w-7xl mx-auto px-4">
             <div class="flex justify-between items-center py-4">
-                <div class="flex items-center space-x-4">
-                    <img src="{{ asset('images/logo-mts.png') }}" alt="Logo MTs Muhamadyah Kasihan" class="h-12 w-12 rounded-full bg-white p-1">
-                    <h1 class="text-xl font-bold">Perpustakaan MTs Muhamadyah Kasihan</h1>
+                <div class="flex items-center space-x-2 sm:space-x-4 min-w-0">
+                    <img src="{{ asset('images/logo-mts.png') }}" alt="Logo MTs Muhamadyah Kasihan" class="h-10 w-10 sm:h-12 sm:w-12 rounded-full bg-white p-1 flex-shrink-0">
+                    <h1 class="text-sm sm:text-lg md:text-xl font-bold truncate">Perpustakaan MTs Muhamadyah Kasihan</h1>
                 </div>
                 <div class="hidden md:flex items-center space-x-6">
                     <a href="{{ route('dashboard') }}" class="hover:text-blue-200 transition">Beranda</a>
@@ -52,15 +52,8 @@
                                 <p class="font-medium break-words">{{ Auth::user()->name }}</p>
                                 <p class="text-gray-500 break-all text-xs">{{ Auth::user()->email }}</p>
                             </div>
-                            <a href="{{ route('import-books') }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition">
-                                <i class="fas fa-file-import mr-2 text-green-600"></i>Import Buku
-                            </a>
-                            <div class="border-t border-gray-100 my-1"></div>
-                            <a href="{{ route('members.import') }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition">
-                                <i class="fas fa-file-import mr-2 text-orange-600"></i>Import Murid
-                            </a>
-                            <a href="{{ route('teachers.import') }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition">
-                                <i class="fas fa-file-import mr-2 text-purple-600"></i>Import Guru
+                            <a href="{{ route('sync.index') }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition">
+                                <i class="fas fa-sync-alt mr-2 text-blue-600"></i>Sinkronkan Data
                             </a>
                             <div class="border-t border-gray-100 my-1"></div>
                             <form method="POST" action="{{ route('logout') }}" class="block">
@@ -114,14 +107,8 @@
                         <div class="px-3 py-1 text-blue-300 text-xs border-b border-blue-600">
                             <p class="font-medium">Administrator</p>
                         </div>
-                        <a href="{{ route('import-books') }}" class="block px-3 py-2 text-blue-200 hover:bg-blue-600 rounded-md">
-                            <i class="fas fa-file-import mr-2 text-green-400"></i>Import Buku
-                        </a>
-                        <a href="{{ route('members.import') }}" class="block px-3 py-2 text-blue-200 hover:bg-blue-600 rounded-md">
-                            <i class="fas fa-file-import mr-2 text-orange-400"></i>Import Murid
-                        </a>
-                        <a href="{{ route('teachers.import') }}" class="block px-3 py-2 text-blue-200 hover:bg-blue-600 rounded-md">
-                            <i class="fas fa-file-import mr-2 text-purple-400"></i>Import Guru
+                        <a href="{{ route('sync.index') }}" class="block px-3 py-2 text-blue-200 hover:bg-blue-600 rounded-md">
+                            <i class="fas fa-sync-alt mr-2 text-blue-400"></i>Sinkronkan Data
                         </a>
                         <form method="POST" action="{{ route('logout') }}">
                             @csrf

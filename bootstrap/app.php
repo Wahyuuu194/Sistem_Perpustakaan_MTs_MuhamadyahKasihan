@@ -15,5 +15,16 @@ return Application::configure(basePath: dirname(__DIR__))
         //
     })
     ->withExceptions(function (Exceptions $exceptions): void {
-        //
+        // Handle exceptions for API/JSON requests
+        $exceptions->render(function (\Throwable $e, \Illuminate\Http\Request $request) {
+            // Check if request wants JSON response
+            if ($request->wantsJson() || $request->is('*/sync-google-sheets')) {
+                return response()->json([
+                    'success' => false,
+                    'message' => $e->getMessage(),
+                    'error' => $e->getMessage(),
+                    'error_class' => get_class($e)
+                ], 500);
+            }
+        });
     })->create();

@@ -1,24 +1,24 @@
 @extends('layouts.app')
 
 @section('content')
-<div class="max-w-4xl mx-auto">
-    <div class="flex justify-between items-center mb-6">
-        <h1 class="text-3xl font-bold text-gray-900">Detail Anggota</h1>
-        <div class="flex space-x-3">
-            <a href="{{ route('members.edit', $member) }}" class="bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 transition">
+<div class="max-w-4xl mx-auto py-4 sm:py-6 px-4 sm:px-0">
+    <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 mb-6">
+        <h1 class="text-xl sm:text-2xl md:text-3xl font-bold text-gray-900">Detail Anggota</h1>
+        <div class="flex flex-col sm:flex-row gap-2 sm:gap-3">
+            <a href="{{ route('members.edit', $member) }}" class="w-full sm:w-auto bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 transition text-center text-sm sm:text-base">
                 <i class="fas fa-edit mr-2"></i>Edit
             </a>
-            <a href="{{ route('members.index') }}" class="bg-gray-600 text-white px-4 py-2 rounded-lg hover:bg-gray-700 transition">
+            <a href="{{ route('members.index') }}" class="w-full sm:w-auto bg-gray-600 text-white px-4 py-2 rounded-lg hover:bg-gray-700 transition text-center text-sm sm:text-base">
                 <i class="fas fa-arrow-left mr-2"></i>Kembali
             </a>
         </div>
     </div>
 
     <div class="bg-white rounded-lg shadow">
-        <div class="p-6">
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+        <div class="p-4 sm:p-6">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8">
                 <div>
-                    <h2 class="text-2xl font-bold text-gray-900 mb-4">{{ $member->name }}</h2>
+                    <h2 class="text-xl sm:text-2xl font-bold text-gray-900 mb-4 break-words">{{ $member->name }}</h2>
                     
                     <div class="space-y-4">
                         <div>

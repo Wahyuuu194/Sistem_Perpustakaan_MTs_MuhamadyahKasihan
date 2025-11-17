@@ -60,7 +60,7 @@
         <!-- Action Buttons -->
         <div class="flex justify-end space-x-3 pt-6 border-t border-gray-200">
             <a href="{{ route('members.index') }}" class="px-6 py-2 text-gray-700 bg-gray-200 rounded-lg hover:bg-gray-300 transition font-medium">
-                <i class="fas fa-arrow-left mr-2"></i>Kembali ke Daftar Murid
+                <i class="fas fa-arrow-left mr-2"></i>Kembali
             </a>
         </div>
     </div>

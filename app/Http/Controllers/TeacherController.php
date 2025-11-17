@@ -126,6 +126,7 @@ class TeacherController extends Controller
             $message = "Sync berhasil! ";
             $message .= "Imported: {$result['imported']}, ";
             $message .= "Updated: {$result['updated']}, ";
+            $message .= "Deleted: " . ($result['deleted'] ?? 0) . ", ";
             $message .= "Total processed: {$result['total_processed']}";
             
             if (!empty($result['errors'])) {

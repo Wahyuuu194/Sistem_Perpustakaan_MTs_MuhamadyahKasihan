@@ -37,6 +37,11 @@
                                                     {{ $borrowing->book->kelas }}
                                                 </span>
                                             @endif
+                                            @if($borrowing->book->rak)
+                                                <span class="px-2 py-1 text-xs font-medium rounded-full bg-blue-100 text-blue-800">
+                                                    Rak {{ $borrowing->book->rak }}
+                                                </span>
+                                            @endif
                                         </div>
                                         <div class="text-sm text-gray-500">{{ $borrowing->book->author }}</div>
                                     </td>
@@ -86,6 +91,9 @@
                                             <a href="{{ route('borrowings.show', $borrowing) }}" class="text-blue-600 hover:text-blue-900">
                                                 <i class="fas fa-eye"></i>
                                             </a>
+                                            <a href="{{ route('borrowings.edit', $borrowing) }}" class="text-yellow-600 hover:text-yellow-800">
+                                                <i class="fas fa-edit"></i>
+                                            </a>
                                             @if($borrowing->status === 'borrowed')
                                                 <form action="{{ route('borrowings.return', $borrowing) }}" method="POST" class="inline">
                                                     @csrf
@@ -121,6 +129,11 @@
                                     @if($borrowing->book->kelas)
                                         <span class="inline-block px-2 py-1 text-xs font-medium rounded-full bg-purple-100 text-purple-800 mt-2">
                                             {{ $borrowing->book->kelas }}
+                                        </span>
+                                    @endif
+                                    @if($borrowing->book->rak)
+                                        <span class="inline-block px-2 py-1 text-xs font-medium rounded-full bg-blue-100 text-blue-800 mt-2 ml-2">
+                                            Rak {{ $borrowing->book->rak }}
                                         </span>
                                     @endif
                                 </div>
@@ -181,6 +194,9 @@
                             <div class="flex justify-end space-x-2">
                                 <a href="{{ route('borrowings.show', $borrowing) }}" class="text-blue-600 hover:text-blue-900 p-2">
                                     <i class="fas fa-eye"></i>
+                                </a>
+                                <a href="{{ route('borrowings.edit', $borrowing) }}" class="text-yellow-600 hover:text-yellow-800 p-2">
+                                    <i class="fas fa-edit"></i>
                                 </a>
                                 @if($borrowing->status === 'borrowed')
                                     <form action="{{ route('borrowings.return', $borrowing) }}" method="POST" class="inline">

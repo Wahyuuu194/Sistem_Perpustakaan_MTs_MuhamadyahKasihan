@@ -1,30 +1,30 @@
 @extends('layouts.app')
 
 @section('content')
-<div class="max-w-4xl mx-auto py-6">
+<div class="max-w-4xl mx-auto py-4 sm:py-6 px-4 sm:px-0">
     <div class="bg-white rounded-lg shadow">
-        <div class="p-6">
-            <div class="flex justify-between items-center mb-6">
-                <h1 class="text-2xl font-bold text-gray-900">Detail Peminjaman</h1>
-                <div class="flex space-x-3">
+        <div class="p-4 sm:p-6">
+            <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 mb-6">
+                <h1 class="text-xl sm:text-2xl font-bold text-gray-900">Detail Peminjaman</h1>
+                <div class="flex flex-col sm:flex-row gap-2 sm:gap-3">
                     @if($borrowing->status === 'borrowed')
                         <form action="{{ route('borrowings.return', $borrowing) }}" method="POST" class="inline">
                             @csrf
                             @method('PATCH')
-                            <button type="submit" class="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition" onclick="return confirm('Yakin ingin mengembalikan buku ini?')">
+                            <button type="submit" class="w-full sm:w-auto bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition text-sm sm:text-base" onclick="return confirm('Yakin ingin mengembalikan buku ini?')">
                                 <i class="fas fa-undo mr-2"></i>Kembalikan Buku
                             </button>
                         </form>
                     @endif
-                    <a href="{{ route('borrowings.index') }}" class="bg-gray-600 text-white px-4 py-2 rounded-lg hover:bg-gray-700 transition">
-                        <i class="fas fa-arrow-left mr-2"></i>Kembali ke Daftar
+                    <a href="{{ route('borrowings.index') }}" class="w-full sm:w-auto bg-gray-600 text-white px-4 py-2 rounded-lg hover:bg-gray-700 transition text-center text-sm sm:text-base">
+                        <i class="fas fa-arrow-left mr-2"></i>Kembali
                     </a>
                 </div>
             </div>
 
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8">
                 <div>
-                    <h2 class="text-xl font-bold text-gray-900 mb-4">Informasi Peminjaman</h2>
+                    <h2 class="text-lg sm:text-xl font-bold text-gray-900 mb-4">Informasi Peminjaman</h2>
                     
                     <div class="space-y-4">
                         <div>
@@ -87,27 +87,32 @@
                 <div>
                     <h3 class="text-lg font-medium text-gray-900 mb-4">Informasi Buku</h3>
                     
-                    <div class="p-4 bg-gray-50 rounded-lg">
-                        <div class="flex items-start space-x-4">
+                    <div class="p-3 sm:p-4 bg-gray-50 rounded-lg">
+                        <div class="flex flex-col sm:flex-row items-start gap-3 sm:gap-4">
                             @if($borrowing->book->cover_image)
-                                <div class="flex-shrink-0">
+                                <div class="flex-shrink-0 mx-auto sm:mx-0">
                                     <img src="{{ asset('storage/' . $borrowing->book->cover_image) }}" alt="Cover {{ $borrowing->book->title }}" 
-                                        class="w-24 h-32 object-cover rounded-lg border shadow-sm">
+                                        class="w-20 h-28 sm:w-24 sm:h-32 object-cover rounded-lg border shadow-sm">
                                 </div>
                             @else
-                                <div class="flex-shrink-0">
-                                    <div class="w-24 h-32 bg-gray-200 rounded-lg border flex items-center justify-center">
-                                        <i class="fas fa-book text-gray-400 text-2xl"></i>
+                                <div class="flex-shrink-0 mx-auto sm:mx-0">
+                                    <div class="w-20 h-28 sm:w-24 sm:h-32 bg-gray-200 rounded-lg border flex items-center justify-center">
+                                        <i class="fas fa-book text-gray-400 text-xl sm:text-2xl"></i>
                                     </div>
                                 </div>
                             @endif
                             
-                            <div class="flex-1">
-                                <div class="flex items-center gap-2 mb-2">
-                                    <h4 class="font-medium text-gray-900 text-lg">{{ $borrowing->book->title }}</h4>
+                            <div class="flex-1 w-full">
+                                <div class="flex flex-wrap items-center gap-2 mb-2">
+                                    <h4 class="font-medium text-gray-900 text-base sm:text-lg break-words">{{ $borrowing->book->title }}</h4>
                                     @if($borrowing->book->kelas)
                                         <span class="px-2 py-1 text-xs font-medium rounded-full bg-purple-100 text-purple-800">
                                             {{ $borrowing->book->kelas }}
+                                        </span>
+                                    @endif
+                                    @if($borrowing->book->rak)
+                                        <span class="px-2 py-1 text-xs font-medium rounded-full bg-blue-100 text-blue-800">
+                                            Rak {{ $borrowing->book->rak }}
                                         </span>
                                     @endif
                                 </div>
@@ -118,6 +123,9 @@
                                         <p><strong>Penerbit:</strong> {{ $borrowing->book->publisher }}</p>
                                     @endif
                                     <p><strong>Kategori:</strong> {{ $borrowing->book->category ?? 'Tidak ada kategori' }}</p>
+                                    @if($borrowing->book->rak)
+                                        <p><strong>Rak:</strong> Rak {{ $borrowing->book->rak }}</p>
+                                    @endif
                                     <p><strong>Stok:</strong> {{ $borrowing->book->available_quantity }}/{{ $borrowing->book->quantity }}</p>
                                 </div>
                             </div>
@@ -126,8 +134,8 @@
                     
                     <h3 class="text-lg font-medium text-gray-900 mb-4 mt-6">Informasi Anggota</h3>
                     
-                    <div class="p-4 bg-gray-50 rounded-lg">
-                        <h4 class="font-medium text-gray-900 text-lg mb-2">{{ $borrowing->member->name }}</h4>
+                    <div class="p-3 sm:p-4 bg-gray-50 rounded-lg">
+                        <h4 class="font-medium text-gray-900 text-base sm:text-lg mb-2 break-words">{{ $borrowing->member->name }}</h4>
                         <div class="space-y-2 text-sm text-gray-600">
                             <p><strong>NIS/NISN:</strong> {{ $borrowing->member->member_id }}</p>
                             <p><strong>Kelas:</strong> 

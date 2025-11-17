@@ -4,15 +4,16 @@
 <div class="max-w-2xl mx-auto py-4 sm:py-6 px-4 sm:px-0">
     <div class="bg-white rounded-lg shadow p-4 sm:p-6">
         <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
-            <h1 class="text-xl sm:text-2xl font-bold text-gray-900">Buat Peminjaman Baru</h1>
+            <h1 class="text-xl sm:text-2xl font-bold text-gray-900">Edit Peminjaman</h1>
             <a href="{{ route('borrowings.index') }}" class="text-blue-600 hover:text-blue-800 text-sm sm:text-base">
-                <i class="fas fa-arrow-left mr-1 sm:mr-2"></i>Kembali 
+                <i class="fas fa-arrow-left mr-1 sm:mr-2"></i>Kembali
             </a>
         </div>
 
-        <form action="{{ route('borrowings.store') }}" method="POST">
+        <form action="{{ route('borrowings.update', $borrowing) }}" method="POST">
             @csrf
-            
+            @method('PUT')
+
             <!-- Book Selection Section -->
             <div class="mb-8">
                 <h3 class="text-lg font-semibold text-gray-900 mb-4 flex items-center">
@@ -20,11 +21,11 @@
                     Pilih Buku
                 </h3>
                 <div class="bg-gray-50 rounded-lg p-4">
-                    <label for="book_id" class="block text-sm font-medium text-gray-700 mb-2">Buku yang akan dipinjam</label>
-                    
+                    <label for="book_id" class="block text-sm font-medium text-gray-700 mb-2">Buku yang dipinjam</label>
+
                     <!-- Search Input -->
                     <div class="relative mb-3">
-                        <input type="text" id="book_search" placeholder="Cari buku berdasarkan judul, pengarang, kategori, atau ISBN..." 
+                        <input type="text" id="book_search" placeholder="Cari buku berdasarkan judul, pengarang, kategori, atau ISBN..."
                             class="w-full px-3 py-2 pl-10 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
                         <div class="absolute left-3 top-2.5 text-gray-400">
                             <i class="fas fa-search"></i>
@@ -33,7 +34,7 @@
                             <i class="fas fa-times cursor-pointer hover:text-gray-600" id="clear_search" style="display: none;"></i>
                         </div>
                     </div>
-                    
+
                     <!-- Search Results -->
                     <div id="search_results" class="mb-3 max-h-48 overflow-y-auto border border-gray-300 rounded-md bg-white shadow-lg" style="display: none;">
                         <div class="p-2 text-sm text-gray-500 border-b">
@@ -43,13 +44,13 @@
                             <!-- Search results will be populated here -->
                         </div>
                     </div>
-                    
+
                     <!-- Book Selection Dropdown -->
                     <select name="book_id" id="book_id" required
                         class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
                         <option value="">Pilih Buku</option>
                         @foreach($books as $book)
-                            <option value="{{ $book->id }}" {{ old('book_id') == $book->id ? 'selected' : '' }}
+                            <option value="{{ $book->id }}" {{ old('book_id', $borrowing->book_id) == $book->id ? 'selected' : '' }}
                                 data-title="{{ $book->title }}"
                                 data-author="{{ $book->author }}"
                                 data-isbn="{{ $book->isbn }}"
@@ -61,19 +62,20 @@
                             </option>
                         @endforeach
                     </select>
-                        <!-- Input jumlah buku yang akan dipinjam -->
-                        <div class="mt-4">
-                            <label for="jumlah" class="block text-sm font-medium text-gray-700 mb-2">Jumlah Buku yang Akan Dipinjam</label>
-                            <input type="number" name="jumlah" id="jumlah" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" min="1" value="{{ old('jumlah', 1) }}" required>
-                            <div class="flex items-center justify-between mt-1">
-                                <small id="jumlah-info" class="text-xs text-gray-500">Maksimal sesuai stok tersedia.</small>
-                                <span id="stok-tersedia" class="text-xs font-semibold text-blue-600">Stok tersedia: -</span>
-                            </div>
-                            @error('jumlah')
-                                <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
-                            @enderror
+
+                    <!-- Input jumlah buku yang dipinjam -->
+                    <div class="mt-4">
+                        <label for="jumlah" class="block text-sm font-medium text-gray-700 mb-2">Jumlah Buku yang Dipinjam</label>
+                        <input type="number" name="jumlah" id="jumlah" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" min="1" value="{{ old('jumlah', $borrowing->quantity) }}" required>
+                        <div class="flex items-center justify-between mt-1">
+                            <small id="jumlah-info" class="text-xs text-gray-500">Maksimal sesuai stok tersedia.</small>
+                            <span id="stok-tersedia" class="text-xs font-semibold text-blue-600">Stok tersedia: -</span>
                         </div>
-                    
+                        @error('jumlah')
+                            <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
+                        @enderror
+                    </div>
+
                     <!-- Selected Book Info -->
                     <div id="selected_book_info" class="mt-3 p-3 bg-blue-50 border border-blue-200 rounded-md" style="display: none;">
                         <div class="flex items-start">
@@ -91,7 +93,7 @@
                             </div>
                         </div>
                     </div>
-                    
+
                     @error('book_id')
                         <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
                     @enderror
@@ -104,21 +106,24 @@
                     <i class="fas fa-user text-green-600 mr-2"></i>
                     Pilih Peminjam
                 </h3>
-                
+
                 <!-- Peminjam Type Selection -->
+                @php
+                    $defaultBorrowerType = old('borrower_type', $borrowing->member_id ? 'student' : 'teacher');
+                @endphp
                 <div class="mb-6">
                     <label class="block text-sm font-medium text-gray-700 mb-3">Jenis Peminjam</label>
                     <div class="flex flex-col sm:flex-row gap-3 sm:gap-6">
-                        <label class="flex items-center p-3 border-2 border-green-200 rounded-lg cursor-pointer hover:bg-green-50 transition flex-1">
-                            <input type="radio" name="borrower_type" value="student" id="borrower_student" checked
+                        <label class="flex items-center p-3 border-2 {{ $defaultBorrowerType === 'student' ? 'border-green-400 bg-green-50' : 'border-green-200' }} rounded-lg cursor-pointer hover:bg-green-50 transition flex-1">
+                            <input type="radio" name="borrower_type" value="student" id="borrower_student" {{ $defaultBorrowerType === 'student' ? 'checked' : '' }}
                                 class="mr-3 text-green-600 focus:ring-green-500">
                             <div class="flex items-center">
                                 <i class="fas fa-users text-green-600 mr-2"></i>
                                 <span class="text-sm font-medium text-gray-700">Siswa</span>
                             </div>
                         </label>
-                        <label class="flex items-center p-3 border-2 border-blue-200 rounded-lg cursor-pointer hover:bg-blue-50 transition flex-1">
-                            <input type="radio" name="borrower_type" value="teacher" id="borrower_teacher"
+                        <label class="flex items-center p-3 border-2 {{ $defaultBorrowerType === 'teacher' ? 'border-blue-400 bg-blue-50' : 'border-blue-200' }} rounded-lg cursor-pointer hover:bg-blue-50 transition flex-1">
+                            <input type="radio" name="borrower_type" value="teacher" id="borrower_teacher" {{ $defaultBorrowerType === 'teacher' ? 'checked' : '' }}
                                 class="mr-3 text-blue-600 focus:ring-blue-500">
                             <div class="flex items-center">
                                 <i class="fas fa-chalkboard-teacher text-blue-600 mr-2"></i>
@@ -129,12 +134,12 @@
                 </div>
 
                 <!-- Student Section -->
-                <div id="student-section" class="bg-green-50 rounded-lg p-4">
+                <div id="student-section" class="bg-green-50 rounded-lg p-4" style="{{ $defaultBorrowerType === 'student' ? '' : 'display: none;' }}">
                     <div class="flex items-center mb-3">
                         <i class="fas fa-users text-green-600 mr-2"></i>
                         <h4 class="text-sm font-semibold text-green-800">Data Siswa</h4>
                     </div>
-                    
+
                     <!-- Scan QR Code Button for Student -->
                     <div class="mb-4">
                         <div class="bg-white border border-green-200 rounded-lg p-3">
@@ -154,15 +159,15 @@
                             </div>
                         </div>
                     </div>
-                    
+
                     <!-- Student Selection Dropdown -->
                     <div>
                         <label for="member_id" class="block text-sm font-medium text-gray-700 mb-2">Atau pilih siswa secara manual</label>
                         <select name="member_id" id="member_id"
-                            class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500">
+                            class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500" {{ $defaultBorrowerType === 'student' ? 'required' : '' }}>
                             <option value="">Pilih Siswa</option>
                             @foreach($members as $member)
-                                <option value="{{ $member->id }}" {{ old('member_id') == $member->id ? 'selected' : '' }}
+                                <option value="{{ $member->id }}" {{ old('member_id', $borrowing->member_id) == $member->id ? 'selected' : '' }}
                                     data-member-id="{{ $member->member_id }}"
                                     data-name="{{ $member->name }}"
                                     data-kelas="{{ $member->kelas }}">
@@ -177,12 +182,12 @@
                 </div>
 
                 <!-- Teacher Section -->
-                <div id="teacher-section" style="display: none;" class="bg-blue-50 rounded-lg p-4">
+                <div id="teacher-section" class="bg-blue-50 rounded-lg p-4" style="{{ $defaultBorrowerType === 'teacher' ? '' : 'display: none;' }}">
                     <div class="flex items-center mb-3">
                         <i class="fas fa-chalkboard-teacher text-blue-600 mr-2"></i>
                         <h4 class="text-sm font-semibold text-blue-800">Data Guru</h4>
                     </div>
-                    
+
                     <!-- Scan QR Code Button for Teacher -->
                     <div class="mb-4">
                         <div class="bg-white border border-blue-200 rounded-lg p-3">
@@ -202,15 +207,15 @@
                             </div>
                         </div>
                     </div>
-                    
+
                     <!-- Teacher Selection Dropdown -->
                     <div>
                         <label for="teacher_id" class="block text-sm font-medium text-gray-700 mb-2">Atau pilih guru secara manual</label>
                         <select name="teacher_id" id="teacher_id"
-                            class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" {{ $defaultBorrowerType === 'teacher' ? 'required' : '' }}>
                             <option value="">Pilih Guru</option>
                             @foreach($teachers as $teacher)
-                                <option value="{{ $teacher->id }}" {{ old('teacher_id') == $teacher->id ? 'selected' : '' }}
+                                <option value="{{ $teacher->id }}" {{ old('teacher_id', $borrowing->teacher_id) == $teacher->id ? 'selected' : '' }}
                                     data-teacher-id="{{ $teacher->teacher_id }}"
                                     data-name="{{ $teacher->name }}"
                                     data-subject="{{ $teacher->subject }}">
@@ -235,7 +240,7 @@
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
                         <div>
                             <label for="borrow_date" class="block text-sm font-medium text-gray-700 mb-2">Tanggal Pinjam</label>
-                            <input type="date" name="borrow_date" id="borrow_date" value="{{ old('borrow_date', date('Y-m-d')) }}" required
+                            <input type="date" name="borrow_date" id="borrow_date" value="{{ old('borrow_date', $borrowing->borrow_date->format('Y-m-d')) }}" required
                                 class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500">
                             @error('borrow_date')
                                 <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
@@ -244,33 +249,11 @@
 
                         <div>
                             <label for="due_date" class="block text-sm font-medium text-gray-700 mb-2">Tanggal Pengembalian</label>
-                            <input type="date" name="due_date" id="due_date" value="{{ old('due_date', date('Y-m-d', strtotime('+7 days'))) }}" required
+                            <input type="date" name="due_date" id="due_date" value="{{ old('due_date', $borrowing->due_date->format('Y-m-d')) }}" required
                                 class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500">
                             @error('due_date')
                                 <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
                             @enderror
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Information Section -->
-            <div class="mb-8">
-                <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
-                    <div class="flex">
-                        <div class="flex-shrink-0">
-                            <i class="fas fa-info-circle text-blue-500 text-lg"></i>
-                        </div>
-                        <div class="ml-3">
-                            <h3 class="text-sm font-semibold text-blue-800 mb-2">Informasi Peminjaman</h3>
-                            <div class="text-sm text-blue-700">
-                                <ul class="list-disc list-inside space-y-1">
-                                    <li>Buku hanya bisa dipinjam jika stok tersedia</li>
-                                    <li>Durasi peminjaman default adalah 7 hari</li>
-                                    <li>Stok buku akan berkurang otomatis saat dipinjam</li>
-                                    <li>Status peminjaman akan otomatis menjadi "Dipinjam"</li>
-                                </ul>
-                            </div>
                         </div>
                     </div>
                 </div>
@@ -282,7 +265,7 @@
                     <i class="fas fa-times mr-1 sm:mr-2"></i>Batal
                 </a>
                 <button type="submit" class="w-full sm:w-auto px-4 sm:px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition font-medium">
-                    <i class="fas fa-save mr-1 sm:mr-2"></i>Buat Peminjaman
+                    <i class="fas fa-save mr-1 sm:mr-2"></i>Simpan Perubahan
                 </button>
             </div>
         </form>
@@ -300,7 +283,7 @@
                         <i class="fas fa-times text-lg"></i>
                     </button>
                 </div>
-                
+
                 <div class="mb-4">
                     <div id="qr-reader" style="width: 100%"></div>
                 </div>
@@ -345,7 +328,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const teacherSelect = document.getElementById('teacher_id');
     const qrModalTitle = document.getElementById('qrModalTitle');
     const manualInputLabel = document.getElementById('manualInputLabel');
-    
+
     // Book search elements
     const bookSearch = document.getElementById('book_search');
     const bookSelect = document.getElementById('book_id');
@@ -353,34 +336,74 @@ document.addEventListener('DOMContentLoaded', function() {
     const selectedBookInfo = document.getElementById('selected_book_info');
     const searchResults = document.getElementById('search_results');
     const searchResultsList = document.getElementById('search_results_list');
-    
+    const jumlahInput = document.getElementById('jumlah');
+    const jumlahInfo = document.getElementById('jumlah-info');
+    const stokTersedia = document.getElementById('stok-tersedia');
+
     let stream = null;
     let video = null;
     let canvas = null;
     let context = null;
     let scanning = false;
-    let currentScanType = 'student'; // 'student' or 'teacher'
+    let currentScanType = borrowerStudent.checked ? 'student' : 'teacher';
+
+    function updateBookInfo(option) {
+        if (!option || option.value === '') {
+            selectedBookInfo.style.display = 'none';
+            if (jumlahInput) {
+                jumlahInput.max = 1;
+                if (!jumlahInput.value) {
+                    jumlahInput.value = 1;
+                }
+                jumlahInfo.textContent = 'Maksimal sesuai stok tersedia.';
+                stokTersedia.textContent = 'Stok tersedia: -';
+                stokTersedia.className = 'text-xs font-semibold text-blue-600';
+            }
+            return;
+        }
+
+        document.getElementById('selected_title').textContent = option.getAttribute('data-title') || 'N/A';
+        document.getElementById('selected_author').textContent = option.getAttribute('data-author') || 'N/A';
+        document.getElementById('selected_category').textContent = option.getAttribute('data-category') || 'N/A';
+        document.getElementById('selected_isbn').textContent = option.getAttribute('data-isbn') || 'N/A';
+        document.getElementById('selected_kelas').textContent = option.getAttribute('data-kelas') || 'Semua Kelas';
+
+        const available = parseInt(option.getAttribute('data-available') || '0', 10);
+        const availableElement = document.getElementById('selected_available');
+        availableElement.textContent = available;
+        availableElement.className = 'font-semibold ' + (available > 5 ? 'text-green-600' : available > 0 ? 'text-yellow-600' : 'text-red-600');
+
+        if (jumlahInput) {
+            jumlahInput.max = available > 0 ? available : jumlahInput.value;
+            if (available > 0 && parseInt(jumlahInput.value || '0', 10) > available) {
+                jumlahInput.value = available;
+            }
+            jumlahInfo.textContent = `Maksimal peminjaman: ${available} buku.`;
+            stokTersedia.textContent = `Stok tersedia: ${available}`;
+            stokTersedia.className = 'text-xs font-semibold ' + (available > 5 ? 'text-green-600' : available > 0 ? 'text-yellow-600' : 'text-red-600');
+        }
+
+        selectedBookInfo.style.display = 'block';
+    }
 
     // Book search functionality
     bookSearch.addEventListener('input', function() {
         const searchTerm = this.value.toLowerCase().trim();
-        
+
         if (searchTerm.length === 0) {
             searchResults.style.display = 'none';
             clearSearch.style.display = 'none';
             return;
         }
-        
-        // Show clear button
+
         clearSearch.style.display = 'block';
-        
-        // Get all book options
+
         const options = bookSelect.querySelectorAll('option');
         const matchingBooks = [];
-        
+
         options.forEach(option => {
             if (option.value === '') return;
-            
+
             const searchData = option.getAttribute('data-search') || '';
             if (searchData.includes(searchTerm)) {
                 matchingBooks.push({
@@ -391,12 +414,10 @@ document.addEventListener('DOMContentLoaded', function() {
                     isbn: option.getAttribute('data-isbn'),
                     kelas: option.getAttribute('data-kelas'),
                     available: option.getAttribute('data-available'),
-                    text: option.textContent
                 });
             }
         });
-        
-        // Display search results
+
         if (matchingBooks.length > 0) {
             searchResultsList.innerHTML = '';
             matchingBooks.forEach(book => {
@@ -410,13 +431,13 @@ document.addEventListener('DOMContentLoaded', function() {
                             <p class="text-xs text-gray-500">Kategori: ${book.category || 'N/A'} | ISBN: ${book.isbn || 'N/A'}</p>
                         </div>
                         <div class="text-right">
-                            <span class="text-xs font-medium ${parseInt(book.available) > 5 ? 'text-green-600' : parseInt(book.available) > 0 ? 'text-yellow-600' : 'text-red-600'}">
+                            <span class="text-xs font-medium ${parseInt(book.available, 10) > 5 ? 'text-green-600' : parseInt(book.available, 10) > 0 ? 'text-yellow-600' : 'text-red-600'}">
                                 Stok: ${book.available}
                             </span>
                         </div>
                     </div>
                 `;
-                
+
                 resultItem.addEventListener('click', function() {
                     bookSelect.value = book.id;
                     bookSelect.dispatchEvent(new Event('change'));
@@ -424,7 +445,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     bookSearch.value = '';
                     clearSearch.style.display = 'none';
                 });
-                
+
                 searchResultsList.appendChild(resultItem);
             });
             searchResults.style.display = 'block';
@@ -433,138 +454,84 @@ document.addEventListener('DOMContentLoaded', function() {
             searchResults.style.display = 'block';
         }
     });
-    
-    // Handle Enter key in search field
+
     bookSearch.addEventListener('keydown', function(event) {
         if (event.key === 'Enter') {
             event.preventDefault();
-            
-            // If there are search results, select the first one
             const firstResult = searchResultsList.querySelector('.cursor-pointer');
             if (firstResult) {
                 firstResult.click();
             }
-            
             return false;
         }
     });
-    
-    // Clear search functionality
+
     clearSearch.addEventListener('click', function() {
         bookSearch.value = '';
         clearSearch.style.display = 'none';
         searchResults.style.display = 'none';
         bookSearch.focus();
     });
-    
-    // Auto-focus search when clicking on select
+
     bookSelect.addEventListener('focus', function() {
         bookSearch.focus();
     });
-    
-    // Hide search results when clicking outside
+
     document.addEventListener('click', function(event) {
         if (!bookSearch.contains(event.target) && !searchResults.contains(event.target)) {
             searchResults.style.display = 'none';
         }
     });
-    
-    // Show selected book info
+
     bookSelect.addEventListener('change', function() {
         const selectedOption = this.options[this.selectedIndex];
-        
-        if (this.value && selectedOption.value !== '') {
-            // Show book info
-            document.getElementById('selected_title').textContent = selectedOption.getAttribute('data-title') || 'N/A';
-            document.getElementById('selected_author').textContent = selectedOption.getAttribute('data-author') || 'N/A';
-            document.getElementById('selected_category').textContent = selectedOption.getAttribute('data-category') || 'N/A';
-            document.getElementById('selected_isbn').textContent = selectedOption.getAttribute('data-isbn') || 'N/A';
-            document.getElementById('selected_kelas').textContent = selectedOption.getAttribute('data-kelas') || 'Semua Kelas';
-            document.getElementById('selected_available').textContent = selectedOption.getAttribute('data-available') || '0';
-            
-            // Add color coding for stock
-            const availableElement = document.getElementById('selected_available');
-            const available = parseInt(selectedOption.getAttribute('data-available') || '0');
-            if (available > 5) {
-                availableElement.className = 'font-semibold text-green-600';
-            } else if (available > 0) {
-                availableElement.className = 'font-semibold text-yellow-600';
-            } else {
-                availableElement.className = 'font-semibold text-red-600';
-            }
-            
-            selectedBookInfo.style.display = 'block';
-
-                // Update max jumlah sesuai stok buku
-                const jumlahInput = document.getElementById('jumlah');
-                const jumlahInfo = document.getElementById('jumlah-info');
-            const stokTersedia = document.getElementById('stok-tersedia');
-                if (jumlahInput) {
-                    jumlahInput.max = available > 0 ? available : 1;
-                    if (parseInt(jumlahInput.value) > available) {
-                        jumlahInput.value = available;
-                    }
-                    jumlahInfo.textContent = `Maksimal peminjaman: ${available} buku.`;
-                if (stokTersedia) {
-                    stokTersedia.textContent = `Stok tersedia: ${available}`;
-                    stokTersedia.className = 'text-xs font-semibold ' + (available > 5 ? 'text-green-600' : available > 0 ? 'text-yellow-600' : 'text-red-600');
-                }
-                }
-        } else {
-            selectedBookInfo.style.display = 'none';
-                // Reset max jumlah
-                const jumlahInput = document.getElementById('jumlah');
-                const jumlahInfo = document.getElementById('jumlah-info');
-            const stokTersedia = document.getElementById('stok-tersedia');
-                if (jumlahInput) {
-                    jumlahInput.max = 1;
-                    jumlahInput.value = 1;
-                    jumlahInfo.textContent = 'Maksimal sesuai stok tersedia.';
-                if (stokTersedia) {
-                    stokTersedia.textContent = 'Stok tersedia: -';
-                    stokTersedia.className = 'text-xs font-semibold text-blue-600';
-                }
-                }
-        }
+        updateBookInfo(selectedOption);
     });
-    
-    // Initialize book info if there's a pre-selected book
+
     if (bookSelect.value) {
         bookSelect.dispatchEvent(new Event('change'));
     }
 
     // Toggle between student and teacher sections
-    borrowerStudent.addEventListener('change', function() {
-        if (this.checked) {
+    function setBorrowerType(type) {
+        currentScanType = type;
+        if (type === 'student') {
             studentSection.style.display = 'block';
             teacherSection.style.display = 'none';
             memberSelect.required = true;
             teacherSelect.required = false;
             teacherSelect.value = '';
-            
-            // Update visual state
-            this.closest('label').classList.add('border-green-400', 'bg-green-50');
-            this.closest('label').classList.remove('border-green-200');
+            borrowerStudent.closest('label').classList.add('border-green-400', 'bg-green-50');
+            borrowerStudent.closest('label').classList.remove('border-green-200');
             borrowerTeacher.closest('label').classList.remove('border-blue-400', 'bg-blue-50');
             borrowerTeacher.closest('label').classList.add('border-blue-200');
-        }
-    });
-
-    borrowerTeacher.addEventListener('change', function() {
-        if (this.checked) {
+        } else {
             studentSection.style.display = 'none';
             teacherSection.style.display = 'block';
             memberSelect.required = false;
             teacherSelect.required = true;
             memberSelect.value = '';
-            
-            // Update visual state
-            this.closest('label').classList.add('border-blue-400', 'bg-blue-50');
-            this.closest('label').classList.remove('border-blue-200');
+            borrowerTeacher.closest('label').classList.add('border-blue-400', 'bg-blue-50');
+            borrowerTeacher.closest('label').classList.remove('border-blue-200');
             borrowerStudent.closest('label').classList.remove('border-green-400', 'bg-green-50');
             borrowerStudent.closest('label').classList.add('border-green-200');
         }
+    }
+
+    borrowerStudent.addEventListener('change', function() {
+        if (this.checked) {
+            setBorrowerType('student');
+        }
     });
+
+    borrowerTeacher.addEventListener('change', function() {
+        if (this.checked) {
+            setBorrowerType('teacher');
+        }
+    });
+
+    // Ensure initial state matches existing data
+    setBorrowerType(borrowerStudent.checked ? 'student' : 'teacher');
 
     // Student QR scan
     scanMemberBtn.addEventListener('click', function() {
@@ -586,13 +553,8 @@ document.addEventListener('DOMContentLoaded', function() {
         startCamera();
     });
 
-    closeQrModal.addEventListener('click', function() {
-        closeModal();
-    });
-
-    cancelQrScan.addEventListener('click', function() {
-        closeModal();
-    });
+    closeQrModal.addEventListener('click', closeModal);
+    cancelQrScan.addEventListener('click', closeModal);
 
     function closeModal() {
         qrModal.classList.add('hidden');
@@ -606,16 +568,16 @@ document.addEventListener('DOMContentLoaded', function() {
                 video = document.createElement('video');
                 video.srcObject = stream;
                 video.play();
-                
+
                 const qrReader = document.getElementById('qr-reader');
                 qrReader.innerHTML = '';
                 qrReader.appendChild(video);
-                
+
                 video.addEventListener('loadedmetadata', function() {
                     video.style.width = '100%';
                     video.style.height = 'auto';
                 });
-                
+
                 scanning = true;
                 scanQR();
             })
@@ -635,34 +597,33 @@ document.addEventListener('DOMContentLoaded', function() {
 
     function scanQR() {
         if (!scanning) return;
-        
+
         if (video && video.readyState === video.HAVE_ENOUGH_DATA) {
             if (!canvas) {
                 canvas = document.createElement('canvas');
                 context = canvas.getContext('2d');
             }
-            
+
             canvas.width = video.videoWidth;
             canvas.height = video.videoHeight;
             context.drawImage(video, 0, 0, canvas.width, canvas.height);
-            
+
             const imageData = context.getImageData(0, 0, canvas.width, canvas.height);
             const code = jsQR(imageData.data, imageData.width, imageData.height);
-            
+
             if (code) {
                 processQRData(code.data);
                 return;
             }
         }
-        
+
         requestAnimationFrame(scanQR);
     }
 
     function processQRData(qrData) {
         const id = qrData.trim();
-        
+
         if (currentScanType === 'student') {
-            // Check if NISN exists in database
             fetch('/members/check-nisn', {
                 method: 'POST',
                 headers: {
@@ -674,7 +635,6 @@ document.addEventListener('DOMContentLoaded', function() {
             .then(response => response.json())
             .then(data => {
                 if (data.success) {
-                    // Find and select the member in dropdown
                     const options = memberSelect.querySelectorAll('option[data-member-id]');
                     for (let option of options) {
                         if (option.dataset.memberId === data.member.member_id) {
@@ -694,7 +654,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 alert('Terjadi kesalahan saat memproses QR Code');
             });
         } else {
-            // Check if NIP exists in database
             fetch('/teachers/check-nip', {
                 method: 'POST',
                 headers: {
@@ -706,7 +665,6 @@ document.addEventListener('DOMContentLoaded', function() {
             .then(response => response.json())
             .then(data => {
                 if (data.success) {
-                    // Find and select the teacher in dropdown
                     const options = teacherSelect.querySelectorAll('option[data-teacher-id]');
                     for (let option of options) {
                         if (option.dataset.teacherId === data.teacher.teacher_id) {
@@ -728,10 +686,9 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
-    // Process manual ID input
     processQrScan.addEventListener('click', function() {
         const id = manualId.value.trim();
-        
+
         if (!id) {
             alert('Masukkan ID dari kartu akses');
             return;
@@ -740,7 +697,6 @@ document.addEventListener('DOMContentLoaded', function() {
         processQRData(id);
     });
 
-    // Handle Enter key in manual input
     manualId.addEventListener('keypress', function(e) {
         if (e.key === 'Enter') {
             processQrScan.click();
@@ -750,3 +706,4 @@ document.addEventListener('DOMContentLoaded', function() {
 </script>
 
 @endsection
+

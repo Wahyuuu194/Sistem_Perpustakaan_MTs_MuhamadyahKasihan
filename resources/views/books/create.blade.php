@@ -1,12 +1,12 @@
 @extends('layouts.app')
 
 @section('content')
-<div class="max-w-2xl mx-auto py-6">
-    <div class="bg-white rounded-lg shadow p-6">
-        <div class="flex items-center justify-between mb-6">
-            <h1 class="text-2xl font-bold text-gray-900">Tambah Buku Baru</h1>
-            <a href="{{ route('books.index') }}" class="text-blue-600 hover:text-blue-800">
-                <i class="fas fa-arrow-left mr-2"></i>Kembali ke Daftar
+<div class="max-w-2xl mx-auto py-4 sm:py-6 px-4 sm:px-0">
+    <div class="bg-white rounded-lg shadow p-4 sm:p-6">
+        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
+            <h1 class="text-xl sm:text-2xl font-bold text-gray-900">Tambah Buku Baru</h1>
+            <a href="{{ route('books.index') }}" class="text-blue-600 hover:text-blue-800 text-sm sm:text-base">
+                <i class="fas fa-arrow-left mr-2"></i>Kembali
             </a>
         </div>
 
@@ -84,6 +84,25 @@
                 </div>
 
                 <div>
+                    <label for="rak" class="block text-sm font-medium text-gray-700 mb-2">Rak</label>
+                    <select name="rak" id="rak" 
+                        class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        <option value="">Pilih Rak</option>
+                        <option value="A" {{ old('rak') == 'A' ? 'selected' : '' }}>Rak A</option>
+                        <option value="B" {{ old('rak') == 'B' ? 'selected' : '' }}>Rak B</option>
+                        <option value="C" {{ old('rak') == 'C' ? 'selected' : '' }}>Rak C</option>
+                        <option value="D" {{ old('rak') == 'D' ? 'selected' : '' }}>Rak D</option>
+                        <option value="E" {{ old('rak') == 'E' ? 'selected' : '' }}>Rak E</option>
+                        <option value="F" {{ old('rak') == 'F' ? 'selected' : '' }}>Rak F</option>
+                        <option value="G" {{ old('rak') == 'G' ? 'selected' : '' }}>Rak G</option>
+                    </select>
+                    @error('rak')
+                        <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
+                    @enderror
+                </div>
+
+
+                <div>
                     <label for="quantity" class="block text-sm font-medium text-gray-700 mb-2">Jumlah Total </label>
                     <input type="number" name="quantity" id="quantity" value="{{ old('quantity', 1) }}" min="1" required
                         class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
@@ -114,11 +133,11 @@
                 </div>
             </div>
 
-            <div class="flex justify-end space-x-3 mt-6">
-                <a href="{{ route('books.index') }}" class="px-4 py-2 text-gray-700 bg-gray-200 rounded-md hover:bg-gray-300 transition">
+            <div class="flex flex-col sm:flex-row justify-end gap-3 mt-6">
+                <a href="{{ route('books.index') }}" class="w-full sm:w-auto px-4 py-2 text-gray-700 bg-gray-200 rounded-md hover:bg-gray-300 transition text-center text-sm sm:text-base">
                     Batal
                 </a>
-                <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition">
+                <button type="submit" class="w-full sm:w-auto px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition text-sm sm:text-base">
                     <i class="fas fa-save mr-2"></i>Simpan Buku
                 </button>
             </div>

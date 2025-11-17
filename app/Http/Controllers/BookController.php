@@ -36,6 +36,7 @@ class BookController extends Controller
                   ->orWhere('publisher', 'like', "%{$search}%")
                   ->orWhere('category', 'like', "%{$search}%")
                   ->orWhere('kelas', 'like', "%{$search}%")
+                  ->orWhere('rak', 'like', "%{$search}%")
                   ->orWhere('isbn', 'like', "%{$search}%");
             });
         }
@@ -64,6 +65,7 @@ class BookController extends Controller
             'publisher' => 'nullable|string|max:255',
             'category' => 'nullable|string|max:100',
             'kelas' => 'nullable|string|max:50',
+            'rak' => 'nullable|string|in:A,B,C,D,E,F,G',
             'quantity' => 'required|integer|min:1',
             'available_quantity' => 'required|integer|min:0',
             'cover_image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
@@ -100,6 +102,7 @@ class BookController extends Controller
             'publisher' => 'nullable|string|max:255',
             'category' => 'nullable|string|max:100',
             'kelas' => 'nullable|string|max:50',
+            'rak' => 'nullable|string|in:A,B,C,D,E,F,G',
             'quantity' => 'required|integer|min:1',
             'available_quantity' => 'required|integer|min:0',
             'cover_image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
@@ -132,14 +135,27 @@ class BookController extends Controller
      */
     public function syncFromGoogleSheets(Request $request)
     {
+        // Ensure JSON response
+        $request->headers->set('Accept', 'application/json');
+        
         try {
-            $syncService = new GoogleSheetsSyncService();
+            $syncService = app(GoogleSheetsSyncService::class);
+            
+            if (!$syncService) {
+                throw new \Exception('Gagal menginisialisasi Google Sheets Service');
+            }
+            
             $result = $syncService->syncBooks();
             
+            if (!is_array($result)) {
+                throw new \Exception('Hasil sync tidak valid');
+            }
+            
             $message = "Sync buku berhasil! ";
-            $message .= "Imported: {$result['imported']}, ";
-            $message .= "Updated: {$result['updated']}, ";
-            $message .= "Total processed: {$result['total_processed']}";
+            $message .= "Imported: " . ($result['imported'] ?? 0) . ", ";
+            $message .= "Updated: " . ($result['updated'] ?? 0) . ", ";
+            $message .= "Deleted: " . ($result['deleted'] ?? 0) . ", ";
+            $message .= "Total processed: " . ($result['total_processed'] ?? 0);
             
             if (!empty($result['errors'])) {
                 $message .= ". Errors: " . count($result['errors']);
@@ -149,13 +165,48 @@ class BookController extends Controller
                 'success' => true,
                 'message' => $message,
                 'data' => $result
+            ], 200, [
+                'Content-Type' => 'application/json'
+            ]);
+            
+        } catch (\Google_Service_Exception $e) {
+            $errorMessage = json_decode($e->getMessage(), true);
+            $message = $errorMessage['error']['message'] ?? $e->getMessage();
+            
+            \Log::error('Google Service Error: ' . $message);
+            \Log::error('Full error: ' . $e->getMessage());
+            
+            return response()->json([
+                'success' => false,
+                'message' => 'Sync gagal: ' . $message,
+                'error' => $message
+            ], 500, [
+                'Content-Type' => 'application/json'
             ]);
             
         } catch (\Exception $e) {
+            \Log::error('Sync Books Error: ' . $e->getMessage());
+            \Log::error('Error Class: ' . get_class($e));
+            \Log::error('Stack trace: ' . $e->getTraceAsString());
+            
             return response()->json([
                 'success' => false,
-                'message' => 'Sync gagal: ' . $e->getMessage()
-            ], 500);
+                'message' => 'Sync gagal: ' . $e->getMessage(),
+                'error' => $e->getMessage(),
+                'error_class' => get_class($e)
+            ], 500, [
+                'Content-Type' => 'application/json'
+            ]);
+        } catch (\Throwable $e) {
+            \Log::error('Fatal Error: ' . $e->getMessage());
+            
+            return response()->json([
+                'success' => false,
+                'message' => 'Terjadi kesalahan fatal: ' . $e->getMessage(),
+                'error' => $e->getMessage()
+            ], 500, [
+                'Content-Type' => 'application/json'
+            ]);
         }
     }
 }
